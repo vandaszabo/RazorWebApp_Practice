@@ -1,0 +1,39 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<h1>Employees</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Employee ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Hire Date</th>
+            <th>Job Title</th>
+            <th>Department</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Employees != null)
+        {
+        @foreach (var entity in Model.Employees)
+        {
+            <tr>
+                <td>@entity.EmployeeID</td>
+                <td>@entity.FirstName</td>
+                <td>@entity.LastName</td>
+                <td>@entity.Email</td>
+                <td>@entity.PhoneNumber</td>
+                <td>@entity.HireDate</td>
+                <td>@entity.JobTitle</td>
+                <td>@entity.DepartmentID</td>
+            </tr>
+        }
+        }
+    </tbody>
+</table>
