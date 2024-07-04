@@ -31,7 +31,7 @@ namespace MintaProjekt.Pages
             try
             {
                 await _dataService.DeleteEmployeeAsync(EmployeeID);
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Employees");
             }
             catch (Exception ex)
             {

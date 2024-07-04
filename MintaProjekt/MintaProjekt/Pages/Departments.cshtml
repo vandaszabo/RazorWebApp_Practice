@@ -3,25 +3,41 @@
 @{
 }
 
+
 <h1>Departments</h1>
+
 <table class="table">
     <thead>
         <tr>
             <th>Department ID</th>
             <th>Department Name</th>
             <th>Leader ID</th>
+            <th>Select new leader</th>
         </tr>
+
     </thead>
     <tbody>
-        @if (Model.Departments != null)
-        {
-            @foreach (var entity in Model.Departments)
-            {
+        @if(Model.Departments != null){
+
+            @foreach(var entity in Model.Departments){
                 <tr>
                     <td>@entity.DepartmentID</td>
                     <td>@entity.DepartmentName</td>
                     <td>@entity.LeaderID</td>
+
+                    <td>
+                         <form method="post">
+                            <select name="newLeaderId">
+                            @foreach (var employee in entity.Employees)
+                            {
+                                <option value="@employee.EmployeeID">@employee.FirstName @employee.LastName</option>
+                            }
+                        </select>
+                            <button type="submit">Update Leader</button>
+                        </form>
+                    </td>
                 </tr>
+
             }
         }
     </tbody>

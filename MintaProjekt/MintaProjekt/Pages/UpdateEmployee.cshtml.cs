@@ -65,7 +65,7 @@ namespace MintaProjekt.Pages
             try
             {
                 await _dataService.UpdateEmployeeAsync(SelectedEmployee);
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Employees");
             }
             catch (Exception ex)
             {

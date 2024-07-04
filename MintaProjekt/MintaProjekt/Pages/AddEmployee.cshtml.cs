@@ -31,7 +31,7 @@ namespace MintaProjekt.Pages
             try
             {
                 await _dataService.AddEmployeeAsync(Employee);
-                return RedirectToPage("/Index"); // Redirect to the index page after adding the employee
+                return RedirectToPage("/Employees"); // Redirect to the index page after adding the employee
             }
             catch (Exception ex)
             {
