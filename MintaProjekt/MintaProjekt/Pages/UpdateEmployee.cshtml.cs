@@ -9,14 +9,14 @@ namespace MintaProjekt.Pages
     public class UpdateEmployeeModel : PageModel
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
-        private readonly DataService _dataService;
+        private readonly EmployeeDataService _dataService;
 
         public Employee? SelectedEmployee { get; set; }
 
         [BindProperty] // automatically bind incoming request data to properties in PageModel class
         public int EmployeeID { get; set; }
 
-        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, DataService dataService)
+        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, EmployeeDataService dataService)
         {
             _logger = logger;
             _dataService = dataService;

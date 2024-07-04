@@ -4,7 +4,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddScoped<DataService>();  // Register DataService Class
+builder.Services.AddScoped<EmployeeDataService>();  // Register Service Class
+builder.Services.AddScoped<DepartmentDataService>();
 
 
 var app = builder.Build();

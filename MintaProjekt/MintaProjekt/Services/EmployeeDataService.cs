@@ -3,12 +3,12 @@ using MintaProjekt.Models;
 
 namespace MintaProjekt.Services
 {
-    public class DataService
+    public class EmployeeDataService
     {
         private readonly string? _connectionString;
-        private readonly ILogger<DataService> _logger;
+        private readonly ILogger<EmployeeDataService> _logger;
 
-        public DataService(ILogger<DataService> logger, IConfiguration configuration)
+        public EmployeeDataService(ILogger<EmployeeDataService> logger, IConfiguration configuration)
         {
             _logger = logger;
             _connectionString = configuration.GetConnectionString("MSSQLConnection");
@@ -52,8 +52,8 @@ namespace MintaProjekt.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Exception occurred in DataService.");
-                    throw new ApplicationException("Error occurred in DataService.", ex);
+                    _logger.LogError(ex, "Exception occurred in EmployeeDataService.");
+                    throw new ApplicationException("Error occurred in EmployeeDataService.", ex);
                 }
 
             }

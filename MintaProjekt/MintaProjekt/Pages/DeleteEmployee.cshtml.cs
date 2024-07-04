@@ -7,9 +7,9 @@ namespace MintaProjekt.Pages
     public class DeleteEmployeeModel : PageModel
     {
         private readonly ILogger<DeleteEmployeeModel> _logger;
-        private readonly DataService _dataService;
+        private readonly EmployeeDataService _dataService;
 
-        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, DataService dataService)
+        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, EmployeeDataService dataService)
         {
             _logger = logger;
             _dataService = dataService;

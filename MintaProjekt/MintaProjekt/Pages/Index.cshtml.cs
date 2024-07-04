@@ -7,10 +7,10 @@ namespace MintaProjekt.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly DataService _dataService;
+        private readonly EmployeeDataService _dataService;
         public IEnumerable<Employee> Employees { get; private set; }
 
-        public IndexModel(DataService dataService)
+        public IndexModel(EmployeeDataService dataService)
         {
             _dataService = dataService;
         }
