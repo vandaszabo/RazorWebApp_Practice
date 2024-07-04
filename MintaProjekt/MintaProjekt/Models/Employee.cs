@@ -11,7 +11,7 @@
         public string JobTitle { get; set; }
         public int DepartmentID { get; set; }
 
-        public Employee() { }
+        public Employee(){}
 
         public Employee(int employeeID, string firstName, string lastName, string email, string phoneNumber, DateOnly hireDate, string jobTitle, int departmentID)
         {

@@ -14,6 +14,8 @@ namespace MintaProjekt.Services
             _connectionString = configuration.GetConnectionString("MSSQLConnection");
         }
 
+
+        // Retrieve all Employees from Database
         public async Task<IEnumerable<Employee>> GetEmployeesAsync()
         {
             var employees = new List<Employee>();
@@ -35,7 +37,7 @@ namespace MintaProjekt.Services
                                 reader.GetString(2), // LastName
                                 reader.GetString(3), // Email
                                 reader.GetString(4), // PhoneNumber
-                                DateOnly.FromDateTime(reader.GetDateTime(5)), // HireDate
+                                DateOnly.FromDateTime(reader.GetDateTime(5)), // HireDate - Parse it from DateTime to DateOnly
                                 reader.GetString(6), // JobTitle
                                 reader.GetInt32(7)  // DepartmentID
                             ));
@@ -58,6 +60,56 @@ namespace MintaProjekt.Services
             return employees;
         }
 
+
+        // Find Employee by ID
+        public async Task<Employee> GetEmployeeByIDAsync(int id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                string query = "SELECT first_name, last_name, email, phone_number, hire_date, job_title, department_id FROM tbl_employee WHERE employee_id = @EmployeeID";
+                Employee? employee = null;
+
+                try
+                {
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.Add(new SqlParameter("@EmployeeID", id));
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                employee = new Employee
+                                {
+                                    FirstName = reader.GetString(0),
+                                    LastName = reader.GetString(1),
+                                    Email = reader.GetString(2),
+                                    PhoneNumber = reader.GetString(3),
+                                    HireDate = DateOnly.FromDateTime(reader.GetDateTime(4)),
+                                    JobTitle = reader.GetString(5),
+                                    DepartmentID = reader.GetInt32(6)
+                                };
+                            }
+                        }
+                    }
+                    if (employee == null)
+                    {
+                        _logger.LogError("No employee found with ID: {EmployeeID}", id);
+                        throw new Exception($"No employee found with ID: {id}");
+                    }
+
+                    return employee;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Exception occurred while reading an employee.");
+                    throw;
+                }
+            }
+        }
+
+
+        // Create new Employee
         public async Task AddEmployeeAsync(Employee employee)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -89,6 +141,8 @@ namespace MintaProjekt.Services
             }
         }
 
+
+        // Update existing Employee
         public async Task UpdateEmployeeAsync(Employee employee)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -106,7 +160,7 @@ namespace MintaProjekt.Services
                         command.Parameters.Add(new SqlParameter("@LastName", employee.LastName));
                         command.Parameters.Add(new SqlParameter("@Email", employee.Email));
                         command.Parameters.Add(new SqlParameter("@PhoneNumber", employee.PhoneNumber));
-                        command.Parameters.Add(new SqlParameter("@HireDate", employee.HireDate.ToDateTime(TimeOnly.MinValue))); // Convert DateOnly to DateTime
+                        command.Parameters.Add(new SqlParameter("@HireDate", employee.HireDate.ToDateTime(TimeOnly.MinValue)));
                         command.Parameters.Add(new SqlParameter("@JobTitle", employee.JobTitle));
                         command.Parameters.Add(new SqlParameter("@DepartmentID", employee.DepartmentID));
 
@@ -121,6 +175,8 @@ namespace MintaProjekt.Services
             }
         }
 
+
+        // Delete Employee by ID
         public async Task DeleteEmployeeAsync(int id)
         {
             using (var connection = new SqlConnection(_connectionString))

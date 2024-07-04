@@ -20,6 +20,8 @@ namespace MintaProjekt.Pages
             Employee = new Employee(); // Initialize the Employee property
         }
 
+
+        // Create Employee
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)

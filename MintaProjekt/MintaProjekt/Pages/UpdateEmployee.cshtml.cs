@@ -10,71 +10,71 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
         private readonly DataService _dataService;
-        private IEnumerable<Employee> _employees; // Hold employees locally in the model
 
-        [BindProperty(SupportsGet = true)] // Support getting parameters from query string
+        public Employee? SelectedEmployee { get; set; }
+
+        [BindProperty] // automatically bind incoming request data to properties in PageModel class
         public int EmployeeID { get; set; }
-
-        [BindProperty]
-        public Employee Employee { get; set; }
-
-        public SelectList EmployeesSelectList { get; set; }
 
         public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, DataService dataService)
         {
             _logger = logger;
             _dataService = dataService;
+            SelectedEmployee = new Employee();
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        // Select Employee to update
+        public async Task<IActionResult> OnPostSelectAsync()
         {
-            _employees = await _dataService.GetEmployeesAsync();
-
-            if (_employees == null || !_employees.Any())
+            if (EmployeeID <= 0)
             {
-                _logger.LogWarning("No employees found in the database.");
-                EmployeesSelectList = new SelectList(new List<Employee>(), nameof(Employee.EmployeeID), nameof(Employee.FirstName));
-            }
-            else
-            {
-                EmployeesSelectList = new SelectList(_employees, nameof(Employee.EmployeeID), nameof(Employee.FirstName));
-
-                if (EmployeeID > 0)
-                {
-                    Employee = _employees.FirstOrDefault(e => e.EmployeeID == EmployeeID);
-                }
-            }
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (Employee == null)
-            {
-                ModelState.AddModelError(string.Empty, "Please select a valid employee.");
-                EmployeesSelectList = new SelectList(_employees, nameof(Employee.EmployeeID), nameof(Employee.FirstName));
-                return Page();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                EmployeesSelectList = new SelectList(_employees, nameof(Employee.EmployeeID), nameof(Employee.FirstName));
+                ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
                 return Page();
             }
 
             try
             {
-                await _dataService.UpdateEmployeeAsync(Employee);
+                SelectedEmployee = await _dataService.GetEmployeeByIDAsync(EmployeeID);
+                if (SelectedEmployee == null)
+                {
+                    ModelState.AddModelError(string.Empty, $"Employee with ID {EmployeeID} not found.");
+                    return Page();
+                }
+                return Page();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred in UpdateEmployeeModel.");
+                ModelState.AddModelError(string.Empty, "An error occurred while updating the employee.");
+                return Page();
+            }
+
+        }
+
+
+        // Update Employee information
+        public async Task<IActionResult> OnPostUpdateAsync()
+        {
+            if (SelectedEmployee == null)
+            {
+                ModelState.AddModelError(string.Empty, "Please enter valid employee data.");
+                return Page();
+            }
+
+            try
+            {
+                await _dataService.UpdateEmployeeAsync(SelectedEmployee);
                 return RedirectToPage("/Index");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred in UpdateEmployeeModel.");
                 ModelState.AddModelError(string.Empty, "An error occurred while updating the employee.");
-                EmployeesSelectList = new SelectList(_employees, nameof(Employee.EmployeeID), nameof(Employee.FirstName));
                 return Page();
             }
         }
+
     }
 
 }

@@ -15,6 +15,7 @@ namespace MintaProjekt.Pages
             _dataService = dataService;
         }
 
+        // Get all Employees from DB
         public async Task OnGetAsync()
         {
             try
@@ -24,20 +25,6 @@ namespace MintaProjekt.Pages
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred while retrieving employees: {ex.Message}");
-            }
-        }
-
-        public async Task<IActionResult> OnPostUpdateEmployeeAsync(Employee employee)
-        {
-            try
-            {
-                await _dataService.UpdateEmployeeAsync(employee);
-                return RedirectToPage(); // Refresh the page to show the updated employee
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while updating an employee: {ex.Message}");
-                return Page();
             }
         }
     }

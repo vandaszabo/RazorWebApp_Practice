@@ -15,9 +15,11 @@ namespace MintaProjekt.Pages
             _dataService = dataService;
         }
 
-        [BindProperty]
+        [BindProperty] // automatically bind incoming request data to properties in PageModel class
         public int EmployeeID { get; set; }
 
+
+        // Delete Employee
         public async Task<IActionResult> OnPostAsync()
         {
             if (EmployeeID <= 0)

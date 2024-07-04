@@ -1,60 +1,48 @@
 ﻿@page
 @model MintaProjekt.Pages.UpdateEmployeeModel
 @{
-    ViewData["Title"] = "Update Employee";
 }
 
 <h2>Update Employee</h2>
 
-<form method="post">
+<form method="post" asp-page-handler="Select">
     <div>
-        <label for="EmployeeID">Select Employee:</label>
-        <select id="EmployeeID" asp-for="EmployeeID" asp-items="Model.EmployeesSelectList" onchange="this.form.submit()">
-            <option value="">Select an employee</option>
-            @if (Model.EmployeesSelectList != null){
-               @foreach (var employee in Model.EmployeesSelectList)
-                {
-                    <option value="@employee.Value"
-                            selected="@(employee.Value == Model.Employee.EmployeeID.ToString())">
-                        "@employee.Text"
-                    </option>
-                }
-            }
-        </select>
+        <label for="EmployeeID">Enter Employee ID:</label>
+        <input type="number" id="EmployeeID" asp-for="EmployeeID" />
     </div>
+    <button type="submit">Select</button>
 </form>
 
-<form method="post">
-    @if (Model.Employee != null)
-    {
+<form method="post" asp-page-handler="Update">
         <div>
             <label for="FirstName">First Name:</label>
-            <input type="text" id="FirstName" asp-for="Employee.FirstName" />
+            <input type="text" id="FirstName" asp-for="SelectedEmployee.FirstName"/>
         </div>
         <div>
             <label for="LastName">Last Name:</label>
-            <input type="text" id="LastName" asp-for="Employee.LastName" />
+            <input type="text" id="LastName" asp-for="SelectedEmployee.LastName" />
         </div>
         <div>
             <label for="Email">Email:</label>
-            <input type="email" id="Email" asp-for="Employee.Email" />
+            <input type="email" id="Email" asp-for="SelectedEmployee.Email" />
         </div>
         <div>
             <label for="PhoneNumber">Phone Number:</label>
-            <input type="text" id="PhoneNumber" asp-for="Employee.PhoneNumber" />
+            <input type="text" id="PhoneNumber" asp-for="SelectedEmployee.PhoneNumber" />
         </div>
         <div>
             <label for="HireDate">Hire Date:</label>
-            <input type="date" id="HireDate" asp-for="Employee.HireDate" />
+            <input type="date" id="HireDate" asp-for="SelectedEmployee.HireDate" />
         </div>
         <div>
             <label for="JobTitle">Job Title:</label>
-            <input type="text" id="JobTitle" asp-for="Employee.JobTitle" />
+            <input type="text" id="JobTitle" asp-for="SelectedEmployee.JobTitle" />
         </div>
         <div>
             <label for="DepartmentID">Department ID:</label>
-            <input type="number" id="DepartmentID" asp-for="Employee.DepartmentID" />
+            <input type="number" id="DepartmentID" asp-for="SelectedEmployee.DepartmentID" />
         </div>
         <button type="submit">Update Employee</button>
-    }
 </form>
+
+<a asp-page="/Index">Cancel</a>

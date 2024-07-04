@@ -1,0 +1,28 @@
+﻿@page
+@model MintaProjekt.Pages.DepartmentsModel
+@{
+}
+
+<h1>Departments</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Department ID</th>
+            <th>Department Name</th>
+            <th>Leader ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Departments != null)
+        {
+            @foreach (var entity in Model.Departments)
+            {
+                <tr>
+                    <td>@entity.DepartmentID</td>
+                    <td>@entity.DepartmentName</td>
+                    <td>@entity.LeaderID</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
