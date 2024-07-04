@@ -4,11 +4,11 @@
     {
         public int DepartmentID { get; set; }
         public string DepartmentName { get; set; }
-        public string LeaderID { get; set; }
+        public int LeaderID { get; set; }
 
         public Department() { }
 
-        public Department(int departmentID, string departmentName, string leaderID)
+        public Department(int departmentID, string departmentName, int leaderID)
         {
             DepartmentID = departmentID;
             DepartmentName = departmentName;
