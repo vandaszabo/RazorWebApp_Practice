@@ -14,46 +14,6 @@ namespace MintaProjekt.Services
             _connectionString = configuration.GetConnectionString("MSSQLConnection");
         }
 
-        // Retrieve all Departments from Database
-        //public async Task<IEnumerable<Department>> GetDepartmentsAsync()
-        //{
-        //    var departments = new List<Department>();
-
-        //    using (var connection = new SqlConnection(_connectionString))
-        //    {
-        //        await connection.OpenAsync(); // Open database connection
-        //        var command = new SqlCommand("SELECT department_id, department_name, leader_id FROM tbl_department", connection);
-
-        //        try
-        //        {
-        //            using (var reader = await command.ExecuteReaderAsync())
-        //            {
-        //                while (await reader.ReadAsync())
-        //                {
-        //                    departments.Add(new Department(
-        //                        reader.GetInt32(0), // DepartmentID
-        //                        reader.GetString(1), // DepartmentName
-        //                        reader.IsDBNull(2) ? null : reader.GetInt32(2) // LeaderID
-        //                    ));
-        //                }
-        //            }
-
-        //        }
-        //        catch (SqlException ex)
-        //        {
-        //            _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server.");
-        //            throw new ApplicationException("Error occurred while accessing SQL Server.", ex);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            _logger.LogError(ex, "Exception occurred in DepartmentDataService.");
-        //            throw new ApplicationException("Error occurred in DepartmentDataService.", ex);
-        //        }
-
-        //    }
-        //    return departments;
-        //}
-
 
         // Get all Department
         public async Task<IEnumerable<Department>> GetDepartmentsWithEmployeesAsync()
@@ -76,13 +36,13 @@ namespace MintaProjekt.Services
                             string departmentName = reader.GetString(1);
                             int? leaderID = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2);
 
-                            if (!departments.TryGetValue(departmentID, out var department))
+                            if (!departments.TryGetValue(departmentID, out var department))  // If department is not yet in Dictionary, create and add
                             {
                                 department = new Department(departmentID, departmentName, leaderID);
                                 departments.Add(departmentID, department);
                             }
 
-                            if (!reader.IsDBNull(3)) // Check if employee_id is not null
+                            if (!reader.IsDBNull(3)) // Check if employee_id is not null & Then create and add the employee to the department
                             {
                                 int employeeID = reader.GetInt32(3);
                                 string firstName = reader.GetString(4);
@@ -103,9 +63,29 @@ namespace MintaProjekt.Services
             return departments.Values;
         }
 
-        public async Task UpdateDepartmentLeaderAsync(int NewLeaderID)
+        public async Task UpdateDepartmentLeaderAsync(int departmentID, int newLeaderID)
         {
+            using (var connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    string query = "UPDATE tbl_department SET leader_id = @LeaderID WHERE department_id = @DepartmentID";
+                    try
+                    {
+                        using (SqlCommand command = new SqlCommand(query, connection))
+                        {
+                            command.Parameters.Add(new SqlParameter("@LeaderID", newLeaderID));
+                            command.Parameters.Add(new SqlParameter("@DepartmentID", departmentID));
 
+                            await command.ExecuteNonQueryAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Exception occurred while updating a department leader.");
+                        throw;
+                    }
+                }
+            
         }
 
     }

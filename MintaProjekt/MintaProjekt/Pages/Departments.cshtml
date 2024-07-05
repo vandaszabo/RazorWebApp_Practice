@@ -13,27 +13,27 @@
             <th>Department Name</th>
             <th>Leader ID</th>
             <th>Select new leader</th>
+            <th>Submit</th>
         </tr>
 
     </thead>
     <tbody>
         @if(Model.Departments != null){
 
-            @foreach(var entity in Model.Departments){
+            @foreach(var department in Model.Departments){
                 <tr>
-                    <td>@entity.DepartmentID</td>
-                    <td>@entity.DepartmentName</td>
-                    <td>@entity.LeaderID</td>
-
+                    <td>@department.DepartmentID</td>
+                    <td>@department.DepartmentName</td>
+                    <td>@department.LeaderID</td>
                     <td>
                          <form method="post">
-                            <select name="newLeaderId">
-                            @foreach (var employee in entity.Employees)
-                            {
-                                <option value="@employee.EmployeeID">@employee.FirstName @employee.LastName</option>
-                            }
-                        </select>
+                            <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
+                            <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FirstName"))">
+                                <option value="">Select an option</option>
+                            </select>
+                        <td>
                             <button type="submit">Update Leader</button>
+                        </td>
                         </form>
                     </td>
                 </tr>
