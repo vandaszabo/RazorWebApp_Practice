@@ -5,41 +5,46 @@
 <h2>Add Employee</h2>
 
 <form method="post">
-    <div>
-        <label for="FirstName">First Name:</label>
-        <input type="text" id="FirstName" asp-for="Employee.FirstName" />
-    </div>
-    <div>
-        <label for="LastName">Last Name:</label>
-        <input type="text" id="LastName" asp-for="Employee.LastName" />
-    </div>
-    <div>
-        <label for="Email">Email:</label>
-        <input type="email" id="Email" asp-for="Employee.Email" />
-    </div>
-    <div>
-        <label for="PhoneNumber">Phone Number:</label>
-        <input type="text" id="PhoneNumber" asp-for="Employee.PhoneNumber" />
-    </div>
-    <div>
-        <label for="HireDate">Hire Date:</label>
-        <input type="date" id="HireDate" asp-for="Employee.HireDate" />
-    </div>
-    <div>
-        <label for="JobTitle">Job Title:</label>
-        <input type="text" id="JobTitle" asp-for="Employee.JobTitle" />
-    </div>
-    <div>
-        <label for="DepartmentID">Department:</label>
-        <select id="DepartmentID" asp-for="Employee.DepartmentID">
-            <option value="1">HR</option>
-            <option value="2">Sales</option>
-            <option value="3">Finance</option>
-            <option value="4">IT</option>
-            <option value="5">Marketing</option>
-            <option value="6">Administration</option>
-            <option value="7">Customer Service</option>
-        </select>
-    </div>
+    <table>
+        <tr>
+            <td><label for="FirstName">First Name:</label></td>
+            <td><input type="text" id="FirstName" asp-for="Employee.FirstName" /></td>
+        </tr>
+        <tr>
+            <td><label for="LastName">Last Name:</label></td>
+            <td><input type="text" id="LastName" asp-for="Employee.LastName" /></td>
+        </tr>
+        <tr>
+            <td><label for="Email">Email:</label></td>
+            <td><input type="email" id="Email" asp-for="Employee.Email" /></td>
+        </tr>
+        <tr>
+            <td><label for="PhoneNumber">Phone Number:</label></td>
+            <td><input type="text" id="PhoneNumber" asp-for="Employee.PhoneNumber" /></td>
+        </tr>
+        <tr>
+            <td><label for="HireDate">Hire Date:</label></td>
+            <td><input type="date" id="HireDate" asp-for="Employee.HireDate" /></td>
+        </tr>
+        <tr>
+            <td><label for="JobTitle">Job Title:</label></td>
+            <td><input type="text" id="JobTitle" asp-for="Employee.JobTitle" /></td>
+        </tr>
+        <tr>
+            <td><label for="DepartmentID">Department:</label></td>
+            <td>
+                <select id="DepartmentID" asp-for="Employee.DepartmentID">
+                    <option value="1">HR</option>
+                    <option value="2">Sales</option>
+                    <option value="3">Finance</option>
+                    <option value="4">IT</option>
+                    <option value="5">Marketing</option>
+                    <option value="6">Administration</option>
+                    <option value="7">Customer Service</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <br />
     <button type="submit">Add Employee</button>
 </form>

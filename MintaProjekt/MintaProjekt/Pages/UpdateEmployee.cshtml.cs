@@ -10,6 +10,7 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
         private readonly EmployeeDataService _dataService;
+        public SelectList EmployeeList { get; set; }
 
         [BindProperty]
         public Employee SelectedEmployee { get; set; }
@@ -21,6 +22,14 @@ namespace MintaProjekt.Pages
         {
             _logger = logger;
             _dataService = dataService;
+        }
+
+        // Retrieve all employees to choose from
+        public async Task<IActionResult> OnGet()
+        {
+            var employees = await _dataService.GetEmployeesAsync();
+            EmployeeList = new SelectList(employees, "EmployeeID", "FullName");
+            return Page();
         }
 
         // Select Employee to update

@@ -11,6 +11,9 @@
         public string JobTitle { get; set; }
         public int DepartmentID { get; set; }
 
+        // Computed property for full name
+        public string FullName => $"{FirstName} {LastName}";
+
         public Employee(){}
 
         public Employee(int employeeID, string firstName, string lastName, string email, string phoneNumber, DateOnly hireDate, string jobTitle, int departmentID)

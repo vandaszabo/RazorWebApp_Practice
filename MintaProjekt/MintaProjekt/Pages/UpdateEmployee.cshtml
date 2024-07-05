@@ -6,44 +6,48 @@
 <h2>Update Employee</h2>
 
 <form method="post" asp-page-handler="Select">
-    <div>
-        <label for="EmployeeID">Enter Employee ID:</label>
-        <input type="number" id="EmployeeID" asp-for="EmployeeID" />
-    </div>
+    <label for="EmployeeID">Select Employee:</label>
+    <select id="EmployeeID" asp-for="EmployeeID" asp-items="Model.EmployeeList">
+        <option value="">-- Select Employee --</option>
+    </select>
     <button type="submit">Select</button>
 </form>
+<a asp-page="/UpdateEmployee">Cancel</a>
 
 <form method="post" asp-page-handler="Update">
     <input type="hidden" asp-for="SelectedEmployee.EmployeeID" />
-        <div>
-            <label for="FirstName">First Name:</label>
-            <input type="text" id="FirstName" asp-for="SelectedEmployee.FirstName"/>
-        </div>
-        <div>
-            <label for="LastName">Last Name:</label>
-            <input type="text" id="LastName" asp-for="SelectedEmployee.LastName" />
-        </div>
-        <div>
-            <label for="Email">Email:</label>
-            <input type="email" id="Email" asp-for="SelectedEmployee.Email" />
-        </div>
-        <div>
-            <label for="PhoneNumber">Phone Number:</label>
-            <input type="text" id="PhoneNumber" asp-for="SelectedEmployee.PhoneNumber" />
-        </div>
-        <div>
-            <label for="HireDate">Hire Date:</label>
-            <input type="date" id="HireDate" asp-for="SelectedEmployee.HireDate" />
-        </div>
-        <div>
-            <label for="JobTitle">Job Title:</label>
-            <input type="text" id="JobTitle" asp-for="SelectedEmployee.JobTitle" />
-        </div>
-        <div>
-            <label for="DepartmentID">Department ID:</label>
-            <input type="number" id="DepartmentID" asp-for="SelectedEmployee.DepartmentID" />
-        </div>
-        <button type="submit">Update Employee</button>
+    <table>
+        <tr>
+            <td><label for="FirstName">First Name:</label></td>
+            <td><input type="text" id="FirstName" asp-for="SelectedEmployee.FirstName" /></td>
+        </tr>
+        <tr>
+            <td><label for="LastName">Last Name:</label></td>
+            <td><input type="text" id="LastName" asp-for="SelectedEmployee.LastName" /></td>
+        </tr>
+        <tr>
+            <td><label for="Email">Email:</label></td>
+            <td><input type="email" id="Email" asp-for="SelectedEmployee.Email" /></td>
+        </tr>
+        <tr>
+            <td><label for="PhoneNumber">Phone Number:</label></td>
+            <td><input type="text" id="PhoneNumber" asp-for="SelectedEmployee.PhoneNumber" /></td>
+        </tr>
+        <tr>
+            <td><label for="HireDate">Hire Date:</label></td>
+            <td><input type="date" id="HireDate" asp-for="SelectedEmployee.HireDate" /></td>
+        </tr>
+        <tr>
+            <td><label for="JobTitle">Job Title:</label></td>
+            <td><input type="text" id="JobTitle" asp-for="SelectedEmployee.JobTitle" /></td>
+        </tr>
+        <tr>
+            <td><label for="DepartmentID">Department ID:</label></td>
+            <td><input type="number" id="DepartmentID" asp-for="SelectedEmployee.DepartmentID" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><button type="submit">Update Employee</button></td>
+        </tr>
+    </table>
 </form>
-
-<a asp-page="/Index">Cancel</a>

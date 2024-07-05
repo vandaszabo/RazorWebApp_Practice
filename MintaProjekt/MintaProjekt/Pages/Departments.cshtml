@@ -28,7 +28,7 @@
                     <td>
                          <form method="post">
                             <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
-                            <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FirstName"))">
+                            <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FullName"))">
                                 <option value="">Select an option</option>
                             </select>
                         <td>
