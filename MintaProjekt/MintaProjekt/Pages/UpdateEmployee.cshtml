@@ -14,6 +14,7 @@
 </form>
 
 <form method="post" asp-page-handler="Update">
+    <input type="hidden" asp-for="SelectedEmployee.EmployeeID" />
         <div>
             <label for="FirstName">First Name:</label>
             <input type="text" id="FirstName" asp-for="SelectedEmployee.FirstName"/>

@@ -1,4 +1,6 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using MintaProjekt.Models;
 
 namespace MintaProjekt.Services
@@ -67,7 +69,7 @@ namespace MintaProjekt.Services
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                string query = "SELECT first_name, last_name, email, phone_number, hire_date, job_title, department_id FROM tbl_employee WHERE employee_id = @EmployeeID";
+                string query = "SELECT employee_id, first_name, last_name, email, phone_number, hire_date, job_title, department_id FROM tbl_employee WHERE employee_id = @EmployeeID";
                 Employee? employee = null;
 
                 try
@@ -81,13 +83,14 @@ namespace MintaProjekt.Services
                             {
                                 employee = new Employee
                                 {
-                                    FirstName = reader.GetString(0),
-                                    LastName = reader.GetString(1),
-                                    Email = reader.GetString(2),
-                                    PhoneNumber = reader.GetString(3),
-                                    HireDate = DateOnly.FromDateTime(reader.GetDateTime(4)),
-                                    JobTitle = reader.GetString(5),
-                                    DepartmentID = reader.GetInt32(6)
+                                    EmployeeID = reader.GetInt32(0),
+                                    FirstName = reader.GetString(1),
+                                    LastName = reader.GetString(2),
+                                    Email = reader.GetString(3),
+                                    PhoneNumber = reader.GetString(4),
+                                    HireDate = DateOnly.FromDateTime(reader.GetDateTime(5)),
+                                    JobTitle = reader.GetString(6),
+                                    DepartmentID = reader.GetInt32(7)
                                 };
                             }
                         }
@@ -97,7 +100,6 @@ namespace MintaProjekt.Services
                         _logger.LogError("No employee found with ID: {EmployeeID}", id);
                         throw new Exception($"No employee found with ID: {id}");
                     }
-
                     return employee;
                 }
                 catch (Exception ex)
