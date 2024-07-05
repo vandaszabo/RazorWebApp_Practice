@@ -8,7 +8,7 @@ namespace MintaProjekt.Pages
     public class EmployeesModel : PageModel
     {
         private readonly EmployeeDataService _dataService;
-        public IEnumerable<Employee> Employees { get; private set; }
+        public IEnumerable<Employee>? Employees { get; private set; }
 
         public EmployeesModel(EmployeeDataService dataService)
         {

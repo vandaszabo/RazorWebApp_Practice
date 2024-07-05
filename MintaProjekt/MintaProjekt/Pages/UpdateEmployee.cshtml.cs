@@ -10,10 +10,10 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
         private readonly EmployeeDataService _dataService;
-        public SelectList EmployeeList { get; set; }
+        public SelectList? EmployeeList { get; set; }
 
         [BindProperty]
-        public Employee SelectedEmployee { get; set; }
+        public Employee? SelectedEmployee { get; set; }
 
         [BindProperty] // automatically bind incoming request data to properties in PageModel class
         public int EmployeeID { get; set; }
@@ -28,6 +28,12 @@ namespace MintaProjekt.Pages
         public async Task<IActionResult> OnGet()
         {
             var employees = await _dataService.GetEmployeesAsync();
+
+            if (employees == null || !employees.Any())
+            {
+                _logger.LogError("No employees found in the database.");
+                return NotFound();
+            }
             EmployeeList = new SelectList(employees, "EmployeeID", "FullName");
             return Page();
         }

@@ -49,12 +49,12 @@ namespace MintaProjekt.Services
                 }
                 catch (SqlException ex)
                 {
-                    _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server.");
+                    _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server in EmployeeDataService - GetEmployeesAsync method.");
                     throw new ApplicationException("Error occurred while accessing SQL Server.", ex);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Exception occurred in EmployeeDataService.");
+                    _logger.LogError(ex, "Exception occurred in EmployeeDataService - GetEmployeesAsync method.");
                     throw new ApplicationException("Error occurred in EmployeeDataService.", ex);
                 }
 
