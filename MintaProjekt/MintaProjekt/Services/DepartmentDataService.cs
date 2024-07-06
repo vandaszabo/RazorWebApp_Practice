@@ -27,6 +27,8 @@ namespace MintaProjekt.Services
                     "SELECT d.department_id, d.department_name, d.leader_id, e.employee_id, e.first_name, e.last_name " +
                     "FROM tbl_department d " +
                     "LEFT JOIN tbl_employee e ON d.department_id = e.department_id", connection))
+
+                try
                 {
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -57,6 +59,16 @@ namespace MintaProjekt.Services
                             }
                         }
                     }
+                }
+                catch (SqlException ex)
+                {
+                    _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server in DepartmentDataService - GetDepartmentsWithEmployeesAsync method.");
+                    throw new ApplicationException("Error occurred while accessing SQL Server.", ex);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Exception occurred in DepartmentDataService - GetDepartmentsWithEmployeesAsync method.");
+                    throw new ApplicationException("Error occurred in DepartmentDataService.", ex);
                 }
             }
 

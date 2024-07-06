@@ -35,7 +35,7 @@ namespace MintaProjekt.Pages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while retrieving departments: {ex.Message}");
+                _logger.LogError($"An error occurred while retrieving departments: {ex.Message}");
                 return Page();
             }
         }
@@ -51,8 +51,8 @@ namespace MintaProjekt.Pages
 
             if (NewLeaderID.HasValue && NewLeaderID <= 0)
             {
-                ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
                 _logger.LogError("Invalid employee ID.");
+                ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
                 return await OnGetAsync(); // Reload departments and return page
             }
 
