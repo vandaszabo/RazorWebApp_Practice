@@ -63,21 +63,42 @@ namespace MintaProjekt.Services
             return departments.Values;
         }
 
-        public async Task UpdateDepartmentLeaderAsync(int departmentID, int newLeaderID)
+        public async Task UpdateDepartmentLeaderAsync(int departmentID, int? newLeaderID)
         {
             using (var connection = new SqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
+
                     string query = "UPDATE tbl_department SET leader_id = @LeaderID WHERE department_id = @DepartmentID";
                     try
                     {
                         using (SqlCommand command = new SqlCommand(query, connection))
                         {
-                            command.Parameters.Add(new SqlParameter("@LeaderID", newLeaderID));
-                            command.Parameters.Add(new SqlParameter("@DepartmentID", departmentID));
+                            if (newLeaderID.HasValue)
+                            {
+                                command.Parameters.AddWithValue("@LeaderID", newLeaderID.Value);
+                            }
+                            else
+                            {
+                                command.Parameters.AddWithValue("@LeaderID", DBNull.Value);
+                            }
 
-                            await command.ExecuteNonQueryAsync();
+                            command.Parameters.AddWithValue("@DepartmentID", departmentID);
+
+                            int rowsAffected = await command.ExecuteNonQueryAsync();
+
+                            if (rowsAffected == 0)
+                            {
+                                _logger.LogWarning("No employee found with the provided ID for leader update.");
+                                throw new Exception("No employee found with the provided ID for leader update.");
+                            }
                         }
+                    }
+
+                    catch (SqlException sqlEx)
+                    {
+                        _logger.LogError(sqlEx, "SQL Exception occurred while accessing SQL Server in DepartmentDataService - UpdateDepartmentLeaderAsync method.");
+                        throw new ApplicationException("Error occurred while accessing SQL Server.", sqlEx);
                     }
                     catch (Exception ex)
                     {

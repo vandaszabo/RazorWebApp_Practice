@@ -29,7 +29,8 @@
                          <form method="post">
                             <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
                             <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FullName"))">
-                                <option value="">Select an option</option>
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="-1">No leader</option>
                             </select>
                         <td>
                             <button type="submit">Update Leader</button>
