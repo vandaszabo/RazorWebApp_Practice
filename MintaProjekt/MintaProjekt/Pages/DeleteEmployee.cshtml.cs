@@ -24,6 +24,7 @@ namespace MintaProjekt.Pages
         {
             if (EmployeeID <= 0)
             {
+                _logger.LogError("Invalid employee ID.");
                 ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
                 return Page();
             }
@@ -37,7 +38,7 @@ namespace MintaProjekt.Pages
             {
                 _logger.LogError(ex, "Exception occurred in DeleteEmployeeModel.");
                 ModelState.AddModelError(string.Empty, "An error occurred while deleting the employee.");
-                return Page();
+                return RedirectToPage("/Error");
             }
         }
     }

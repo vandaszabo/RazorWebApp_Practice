@@ -7,24 +7,28 @@ namespace MintaProjekt.Pages
 {
     public class EmployeesModel : PageModel
     {
+        private readonly ILogger<EmployeesModel> _logger;
         private readonly EmployeeDataService _dataService;
         public IEnumerable<Employee>? Employees { get; private set; }
 
-        public EmployeesModel(EmployeeDataService dataService)
+        public EmployeesModel(ILogger<EmployeesModel> logger, EmployeeDataService dataService)
         {
+            _logger = logger;
             _dataService = dataService;
         }
 
         // Get all Employees from DB
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             try
             {
                 Employees = await _dataService.GetEmployeesAsync();
+                return Page();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while retrieving employees: {ex.Message}");
+                _logger.LogError($"An error occurred while retrieving employees: {ex.Message}");
+                return RedirectToPage("/Error");
             }
         }
     }

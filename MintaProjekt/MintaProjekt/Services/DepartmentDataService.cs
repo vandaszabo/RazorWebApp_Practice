@@ -15,7 +15,7 @@ namespace MintaProjekt.Services
         }
 
 
-        // Get all Department
+        // Get all Department with related employees
         public async Task<IEnumerable<Department>> GetDepartmentsWithEmployeesAsync()
         {
             var departments = new Dictionary<int, Department>();
@@ -75,6 +75,8 @@ namespace MintaProjekt.Services
             return departments.Values;
         }
 
+
+        // Update department leader (can be null)
         public async Task UpdateDepartmentLeaderAsync(int departmentID, int? newLeaderID)
         {
             using (var connection = new SqlConnection(_connectionString))

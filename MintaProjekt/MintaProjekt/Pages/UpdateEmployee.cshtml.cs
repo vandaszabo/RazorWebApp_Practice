@@ -15,7 +15,7 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public Employee? SelectedEmployee { get; set; }
 
-        [BindProperty] // automatically bind incoming request data to properties in PageModel class
+        [BindProperty]
         public int EmployeeID { get; set; }
 
         public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, EmployeeDataService dataService)
@@ -43,6 +43,7 @@ namespace MintaProjekt.Pages
         {
             if (EmployeeID <= 0)
             {
+                _logger.LogError("Invalid employee ID.");
                 ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
                 return Page();
             }
@@ -53,6 +54,7 @@ namespace MintaProjekt.Pages
 
                 if (SelectedEmployee == null)
                 {
+                    _logger.LogWarning("Employee not found by given ID.");
                     ModelState.AddModelError(string.Empty, $"Employee with ID {EmployeeID} not found.");
                     return Page();
                 }
@@ -62,7 +64,7 @@ namespace MintaProjekt.Pages
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred in UpdateEmployeeModel.");
-                return Page();
+                return RedirectToPage("/Error");
             }
 
         }
@@ -71,9 +73,9 @@ namespace MintaProjekt.Pages
         // Update Employee information
         public async Task<IActionResult> OnPostUpdateAsync()
         {
-            if (SelectedEmployee.EmployeeID <= 0)
+            if (SelectedEmployee == null || SelectedEmployee.EmployeeID <= 0)
             {
-                _logger.LogError($"SelectedEmployee object is not correctly set. {SelectedEmployee.EmployeeID },{SelectedEmployee.FirstName}");
+                _logger.LogError($"SelectedEmployee object is not correctly set in UpdateEmployeeModel.");
                 return Page();
             }
 
@@ -85,7 +87,7 @@ namespace MintaProjekt.Pages
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred in UpdateEmployeeModel.");
-                return Page();
+                return RedirectToPage("/Error");
             }
         }
 

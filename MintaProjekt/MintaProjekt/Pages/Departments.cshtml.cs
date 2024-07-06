@@ -13,7 +13,7 @@ namespace MintaProjekt.Pages
         public IEnumerable<Department>? Departments { get; private set; }
 
         [BindProperty]
-        public int? NewLeaderID { get; set; }
+        public int? NewLeaderID { get; set; } = 0;
         [BindProperty] 
         public int DepartmentID { get; set; }
 
@@ -36,7 +36,7 @@ namespace MintaProjekt.Pages
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred while retrieving departments: {ex.Message}");
-                return Page();
+                return RedirectToPage("/Error");
             }
         }
 
@@ -65,7 +65,7 @@ namespace MintaProjekt.Pages
             {
                 _logger.LogError(ex, "Exception occurred in DepartmentModel.");
                 ModelState.AddModelError(string.Empty, "An error occurred while updating the department leader.");
-                return await OnGetAsync();
+                return RedirectToPage("/Error");
             }
         }
     }

@@ -36,7 +36,7 @@ namespace MintaProjekt.Pages
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred in AddEmployeeModel.");
-                return Page();
+                return RedirectToPage("/Error");
             }
         }
     }

@@ -3,7 +3,7 @@
     public class Department
     {
         public int DepartmentID { get; set; }
-        public string DepartmentName { get; set; }
+        public string? DepartmentName { get; set; }
         public int? LeaderID { get; set; }
         public List<Employee> Employees { get; set; }
 
@@ -18,5 +18,6 @@
             LeaderID = leaderID;
             Employees = new List<Employee>();
         }
+
     }
 }
