@@ -45,7 +45,7 @@ namespace MintaProjekt.Pages
             {
                 _logger.LogError("Invalid employee ID.");
                 ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
-                return Page();
+                return RedirectToPage("/Error");
             }
 
             try

@@ -11,15 +11,18 @@
         <option value="">-- Select Employee --</option>
     </select>
     <button type="submit">Select</button>
+    
 </form>
 <a asp-page="/UpdateEmployee">Cancel</a>
 
+@if(Model.SelectedEmployee != null)
+{
 <form method="post" asp-page-handler="Update">
     <input type="hidden" asp-for="SelectedEmployee.EmployeeID" />
     <table>
         <tr>
             <td><label for="FirstName">First Name:</label></td>
-            <td><input type="text" id="FirstName" asp-for="SelectedEmployee.FirstName" /></td>
+            <td><input type="text" id="FirstName" asp-for="SelectedEmployee.FirstName"/></td>
         </tr>
         <tr>
             <td><label for="LastName">Last Name:</label></td>
@@ -50,4 +53,5 @@
             <td><button type="submit">Update Employee</button></td>
         </tr>
     </table>
-</form>
+</form>    
+}
