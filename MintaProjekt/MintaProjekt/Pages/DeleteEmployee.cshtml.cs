@@ -24,7 +24,7 @@ namespace MintaProjekt.Pages
         {
             if (EmployeeID <= 0)
             {
-                _logger.LogError("Invalid employee ID.");
+                _logger.LogError($"Cannot delete employee. Invalid employee ID: {EmployeeID}.");
                 ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
                 return Page();
             }
@@ -32,13 +32,14 @@ namespace MintaProjekt.Pages
             try
             {
                 await _dataService.DeleteEmployeeAsync(EmployeeID);
+                _logger.LogInformation($"Successfully deleted employee with ID: {EmployeeID}.");
                 return RedirectToPage("/Employees");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred in DeleteEmployeeModel.");
                 ModelState.AddModelError(string.Empty, "An error occurred while deleting the employee.");
-                return RedirectToPage("/Error");
+                return Page();
             }
         }
     }

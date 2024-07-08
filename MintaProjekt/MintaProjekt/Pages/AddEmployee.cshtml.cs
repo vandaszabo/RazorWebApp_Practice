@@ -10,8 +10,14 @@ namespace MintaProjekt.Pages
         private readonly ILogger<AddEmployeeModel> _logger;
         private readonly EmployeeDataService _dataService;
 
-        [BindProperty] // automatically bind incoming request data to properties in PageModel class
+        [BindProperty]
         public Employee Employee { get; set; }
+
+        [BindProperty]
+        public string? PhoneNumber { get; set; }
+
+        [BindProperty]
+        public string? SelectedAreaCode { get; set; }
 
         public AddEmployeeModel(ILogger<AddEmployeeModel> logger, EmployeeDataService dataService)
         {
@@ -20,13 +26,17 @@ namespace MintaProjekt.Pages
             // Initialize the Employee property 
             Employee = new Employee{
                 HireDate = DateOnly.FromDateTime(DateTime.Now)
-            }; 
+            };
         }
-
 
         // Create Employee
         public async Task<IActionResult> OnPostAsync()
         {
+            if (!string.IsNullOrEmpty(SelectedAreaCode) && !string.IsNullOrEmpty(PhoneNumber))
+            {
+                Employee.PhoneNumber = $"+36{SelectedAreaCode}{PhoneNumber}";
+            }
+
             if (Employee.HasInvalidProperties())
             {
                 _logger.LogError("Employee object is not correctly set in AddEmployeeModel");
@@ -36,12 +46,14 @@ namespace MintaProjekt.Pages
             try
             {
                 await _dataService.AddEmployeeAsync(Employee);
+                _logger.LogInformation($"New Employee added with ID: {Employee.EmployeeID}, Name: {Employee.FullName}");
                 return RedirectToPage("/Employees"); // Redirect to the index page after adding the employee
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred in AddEmployeeModel.");
-                return RedirectToPage("/Error");
+                ModelState.AddModelError(string.Empty, "An error occurred while adding an employee.");
+                return Page();
             }
         }
     }
