@@ -17,7 +17,10 @@ namespace MintaProjekt.Pages
         {
             _logger = logger;
             _dataService = dataService;
-            Employee = new Employee(); // Initialize the Employee property 
+            // Initialize the Employee property 
+            Employee = new Employee{
+                HireDate = DateOnly.FromDateTime(DateTime.Now)
+            }; 
         }
 
 
