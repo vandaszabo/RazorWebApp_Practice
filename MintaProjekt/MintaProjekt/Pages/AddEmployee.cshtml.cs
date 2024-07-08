@@ -17,15 +17,17 @@ namespace MintaProjekt.Pages
         {
             _logger = logger;
             _dataService = dataService;
-            Employee = new Employee(); // Initialize the Employee property
+            Employee = new Employee(); // Initialize the Employee property 
         }
 
 
         // Create Employee
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            if (Employee.HasInvalidProperties())
             {
+                _logger.LogError("Employee object is not correctly set in AddEmployeeModel");
+                ModelState.AddModelError(string.Empty, "Please provide all information.");
                 return Page();
             }
             try

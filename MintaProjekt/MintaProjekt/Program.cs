@@ -1,6 +1,20 @@
 using MintaProjekt.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog configuration
+var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .CreateLogger();
+
+
+// Use Serilog
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -22,9 +36,21 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapRazorPages();
 
-app.Run();
+try
+{
+    Log.Information("Starting up the host");
+    app.Run();
+
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

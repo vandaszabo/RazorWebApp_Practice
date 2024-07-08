@@ -25,8 +25,8 @@ namespace MintaProjekt.Services
                 await connection.OpenAsync();
                 using (var command = new SqlCommand(
                     "SELECT d.department_id, d.department_name, d.leader_id, e.employee_id, e.first_name, e.last_name " +
-                    "FROM tbl_department d " +
-                    "LEFT JOIN tbl_employee e ON d.department_id = e.department_id", connection))
+                    "FROM tbl_department AS d " +
+                    "LEFT JOIN tbl_employee AS e ON d.department_id = e.department_id", connection))
 
                 try
                 {
