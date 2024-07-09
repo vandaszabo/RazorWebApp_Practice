@@ -221,23 +221,34 @@ namespace MintaProjekt.Services
         // Delete Employee by ID
         public async Task DeleteEmployeeAsync(int id)
         {
+            _logger.LogInformation("Start DeleteEmployeeAsync method.");
+            _logger.LogDebug("Received ID must be greater than zero.");
+
+            // Validate id number
             if (id <= 0)
             {
-                _logger.LogWarning("Invalid employee ID provided for deletion.");
+                _logger.LogWarning("Invalid employee ID for deletion: {ID}", id);
                 throw new ArgumentException("Invalid employee ID. ID must be greater than zero.");
             }
 
+            // Create SQL connection
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
+
+                // Create SQL query
                 string query = "DELETE FROM tbl_employee WHERE employee_id = @EmployeeID";
+                _logger.LogInformation("SQL query: {query}", query);
 
                 try
                 {
+                    _logger.LogDebug("Try to execute deletion query.");
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.Add(new SqlParameter("@EmployeeID", id));
                         int rowsAffected = await command.ExecuteNonQueryAsync();
+                        _logger.LogDebug("Expected number of rows affected: 1");
+                        _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
 
                         if (rowsAffected == 0)
                         {
