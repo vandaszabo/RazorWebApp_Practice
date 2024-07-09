@@ -47,7 +47,7 @@ namespace MintaProjekt.Pages
             {
                 await _dataService.AddEmployeeAsync(Employee);
                 _logger.LogInformation($"New Employee added with ID: {Employee.EmployeeID}, Name: {Employee.FullName}");
-                return RedirectToPage("/Employees"); // Redirect to the index page after adding the employee
+                return RedirectToPage("/Employees");
             }
             catch (Exception ex)
             {

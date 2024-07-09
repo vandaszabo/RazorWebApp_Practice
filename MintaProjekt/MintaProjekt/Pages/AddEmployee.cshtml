@@ -5,7 +5,7 @@
 <h2>Add Employee</h2>
 
 <div asp-validation-summary="All" class="text-danger"></div>
-<form method="post">
+<form method="post" onsubmit="return confirmSubmit()">
     <table>
         <tr>
             <td><label for="FirstName">First Name:</label></td>
@@ -63,3 +63,12 @@
     <br />
     <button type="submit">Add Employee</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function confirmSubmit() {
+            return confirm('Are you sure you want to submit this form?');
+        }
+    </script>
+}

@@ -87,7 +87,8 @@ namespace MintaProjekt.Pages
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred in UpdateEmployeeModel.");
-                return RedirectToPage("/Error");
+                ModelState.AddModelError(string.Empty, "Update failed.");
+                return Page();
             }
         }
 

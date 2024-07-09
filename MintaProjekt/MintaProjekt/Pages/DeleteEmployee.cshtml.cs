@@ -24,7 +24,7 @@ namespace MintaProjekt.Pages
         {
             if (EmployeeID <= 0)
             {
-                _logger.LogError($"Cannot delete employee. Invalid employee ID: {EmployeeID}.");
+                _logger.LogWarning($"Cannot delete employee. Invalid employee ID: {EmployeeID}.");
                 ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
                 return Page();
             }

@@ -17,6 +17,7 @@
 
 @if(Model.SelectedEmployee != null)
 {
+<div asp-validation-summary="All" class="text-danger"></div>
 <form method="post" asp-page-handler="Update">
     <input type="hidden" asp-for="SelectedEmployee.EmployeeID" />
     <table>

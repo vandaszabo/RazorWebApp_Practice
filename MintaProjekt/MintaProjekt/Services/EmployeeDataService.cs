@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using MintaProjekt.Models;
+using MintaProjekt.Exeptions;
 
 namespace MintaProjekt.Services
 {
@@ -241,14 +242,19 @@ namespace MintaProjekt.Services
                         if (rowsAffected == 0)
                         {
                             _logger.LogWarning("No employee found with the provided ID to delete.");
-                            throw new Exception("No employee found with the provided ID to delete.");
+                            throw new NoRowsAffectedException("The SQL query affected zero rows. Unseccessful employee deletion.");
                         }
                     }
+                }
+                catch(NoRowsAffectedException ex)
+                {
+                    _logger.LogError(ex, "Exception occurred in EmployeeDataService - DeleteEmployeeAsync method. Employee deletion failed.");
+                    throw;
                 }
                 catch (SqlException ex)
                 {
                     _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server in EmployeeDataService - DeleteEmployeeAsync method.");
-                    throw new ApplicationException("Error occurred while accessing SQL Server.", ex);
+                    throw;
                 }
                 catch (Exception ex)
                 {
