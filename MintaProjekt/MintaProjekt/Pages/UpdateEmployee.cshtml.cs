@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
 using MintaProjekt.Services;
+using System.Data.SqlClient;
 
 namespace MintaProjekt.Pages
 {
@@ -75,19 +77,35 @@ namespace MintaProjekt.Pages
         {
             if (SelectedEmployee == null || SelectedEmployee.EmployeeID <= 0)
             {
-                _logger.LogError($"SelectedEmployee object is not correctly set in UpdateEmployeeModel.");
+                _logger.LogWarning($"SelectedEmployee object is not correctly set in UpdateEmployeeModel.");
+                ModelState.AddModelError(string.Empty, "Employee selection failed.");
                 return Page();
             }
 
             try
             {
                 await _dataService.UpdateEmployeeAsync(SelectedEmployee);
+                _logger.LogInformation("Successful employee update for {ID}", SelectedEmployee.EmployeeID);
                 return RedirectToPage("/Employees");
             }
-            catch (Exception ex)
+            catch (ArgumentException)
             {
-                _logger.LogError(ex, "Exception occurred in UpdateEmployeeModel.");
-                ModelState.AddModelError(string.Empty, "Update failed.");
+                ModelState.AddModelError(string.Empty, "Please provide all required information.");
+                return Page();
+            }
+            catch (NoRowsAffectedException)
+            {
+                ModelState.AddModelError(string.Empty, "Employee not found for update.");
+                return Page();
+            }
+            catch (SqlException)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while updating the employee.");
+                return Page();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while updating the employee.");
                 return Page();
             }
         }

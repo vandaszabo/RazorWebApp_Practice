@@ -186,57 +186,57 @@ namespace MintaProjekt.Services
                 throw new ArgumentException("Invalid Employee data. All properties must be provided.");
             }
 
-            using (var connection = new SqlConnection(_connectionString))
+            // Create SQL connection
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            // Create SQL query
+            string query = $"EXEC sp_set_employee " +
+            $"@EmployeeID = {employee.EmployeeID}, " +
+            $"@FirstName = '{employee.FirstName}', " +
+            $"@LastName = '{employee.LastName}', " +
+            $"@Email = '{employee.Email}', " +
+            $"@PhoneNumber = '{employee.PhoneNumber}', " +
+            $"@HireDate = '{employee.HireDate.ToDateTime(TimeOnly.MinValue):yyyy-MM-dd}', " +
+            $"@JobTitle = '{employee.JobTitle}', " +
+            $"@DepartmentID = {employee.DepartmentID}";
+
+
+            try
             {
-                await connection.OpenAsync();
+                _logger.LogDebug("Try to execute update query.");
+                using SqlCommand command = new(query, connection);
 
-                string query = $"EXEC sp_set_employee " +
-                $"@EmployeeID = {employee.EmployeeID}, " +
-                $"@FirstName = '{employee.FirstName}', " +
-                $"@LastName = '{employee.LastName}', " +
-                $"@Email = '{employee.Email}', " +
-                $"@PhoneNumber = '{employee.PhoneNumber}', " +
-                $"@HireDate = '{employee.HireDate.ToDateTime(TimeOnly.MinValue):yyyy-MM-dd}', " +
-                $"@JobTitle = '{employee.JobTitle}', " +
-                $"@DepartmentID = {employee.DepartmentID}";
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+                _logger.LogDebug("Expected number of rows affected: 1");
+                _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
 
-
-                try
+                // If Employee not found
+                if (rowsAffected == 0)
                 {
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        int rowsAffected = await command.ExecuteNonQueryAsync();
-                        _logger.LogDebug("Expected number of rows affected: 1");
-                        _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
-
-                        // If Employee not found
-                        if (rowsAffected == 0)
-                        {
-                            _logger.LogWarning("No employee found with the provided ID to update.");
-                            throw new NoRowsAffectedException("The SQL query affected zero rows. Unseccessful employee update.");
-                        }
-                    }
+                    _logger.LogWarning("No employee found with the provided ID to update.");
+                    throw new NoRowsAffectedException("The SQL query affected zero rows. Unseccessful employee update.");
                 }
-                catch(ArgumentException ex)
-                {
-                    _logger.LogError(ex, "Invalid Employee object provided for update.");
-                    throw;
-                }
-                catch(NoRowsAffectedException ex)
-                {
-                    _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - UpdateEmployeeAsync method. Employee update failed.");
-                    throw;
-                }
-                catch (SqlException ex)
-                {
-                    _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - UpdateEmployeeAsync method.");
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Exception occurred while updating an employee.");
-                    throw;
-                }
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError(ex, "Invalid Employee object provided for update.");
+                throw;
+            }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - UpdateEmployeeAsync method. Employee update failed.");
+                throw;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - UpdateEmployeeAsync method.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred while updating an employee.");
+                throw;
             }
         }
 
@@ -256,53 +256,50 @@ namespace MintaProjekt.Services
             }
 
             // Create SQL connection
-            using (var connection = new SqlConnection(_connectionString))
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            // Create SQL query
+            string query = $"EXEC sp_delete_employee_and_update_departments @EmployeeID = {id};";
+            _logger.LogInformation("SQL query: {query}", query);
+
+            try
             {
-                await connection.OpenAsync();
+                _logger.LogDebug("Try to execute deletion query.");
+                using SqlCommand command = new(query, connection);
 
-                // Create SQL query
-                string query = $"EXEC sp_delete_employee_and_update_departments @EmployeeID = {id};";
-                _logger.LogInformation("SQL query: {query}", query);
-
-                try
-                {
-                    _logger.LogDebug("Try to execute deletion query.");
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        int rowsAffected = await command.ExecuteNonQueryAsync();
-                        _logger.LogDebug("Expected number of rows affected: 1");
-                        _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+                _logger.LogDebug("Expected number of rows affected: 1");
+                _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
 
 
-                        // Necessary when emplyee with provided id does not exist.
-                        if (rowsAffected == 0)
-                        {
-                            _logger.LogWarning("No employee found with the provided ID to delete.");
-                            throw new NoRowsAffectedException("The SQL query affected zero rows. Unseccessful employee deletion.");
-                        }
-                    }
-                }
-                catch(NoRowsAffectedException ex)
+                // Necessary when emplyee with provided id does not exist.
+                if (rowsAffected == 0)
                 {
-                    _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - DeleteEmployeeAsync method. Employee deletion failed.");
-                    throw;
+                    _logger.LogWarning("No employee found with the provided ID to delete.");
+                    throw new NoRowsAffectedException("The SQL query affected zero rows. Unseccessful employee deletion.");
                 }
-                // Check ErrorNumber for referential constraint violation
-                catch (SqlException ex) when (ex.Number == 547) 
-                {
-                    _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - DeleteEmployeeAsync method. Deletion failed. Employee is registered as a department leader. First must delete from department table.");
-                    throw;
-                }
-                catch (SqlException ex)
-                {
-                    _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - DeleteEmployeeAsync method.");
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Exception occurred in EmployeeDataService - DeleteEmployeeAsync method.");
-                    throw;
-                }
+            }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - DeleteEmployeeAsync method. Employee deletion failed.");
+                throw;
+            }
+            // Check ErrorNumber for referential constraint violation
+            catch (SqlException ex) when (ex.Number == 547)
+            {
+                _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - DeleteEmployeeAsync method. Deletion failed. Employee is registered as a department leader. First must delete from department table.");
+                throw;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - DeleteEmployeeAsync method.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred in EmployeeDataService - DeleteEmployeeAsync method.");
+                throw;
             }
         }
 
