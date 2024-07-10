@@ -30,7 +30,6 @@ namespace MintaProjekt.Pages
             try
             {
                 Departments = await _dataService.GetDepartmentsWithEmployeesAsync();
-                _logger.LogInformation($"New leader ID in OnGetAsync: {NewLeaderID}");
                 return Page();
             }
             catch (Exception ex)

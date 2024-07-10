@@ -223,6 +223,7 @@ namespace MintaProjekt.Services
         {
             _logger.LogInformation("Start DeleteEmployeeAsync method.");
             _logger.LogDebug("Received ID must be greater than zero.");
+            _logger.LogInformation("Received employee ID: {ID}", id);
 
             // Validate id number
             if (id <= 0)
@@ -237,7 +238,7 @@ namespace MintaProjekt.Services
                 await connection.OpenAsync();
 
                 // Create SQL query
-                string query = "DELETE FROM tbl_employee WHERE employee_id = @EmployeeID";
+                string query = $"EXEC sp_delete_employee_and_update_departments @EmployeeID = {id};";
                 _logger.LogInformation("SQL query: {query}", query);
 
                 try
@@ -245,7 +246,6 @@ namespace MintaProjekt.Services
                     _logger.LogDebug("Try to execute deletion query.");
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.Add(new SqlParameter("@EmployeeID", id));
                         int rowsAffected = await command.ExecuteNonQueryAsync();
                         _logger.LogDebug("Expected number of rows affected: 1");
                         _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
