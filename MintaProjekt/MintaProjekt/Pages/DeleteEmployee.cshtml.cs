@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MintaProjekt.Exeptions;
 using MintaProjekt.Services;
+using System.Data.SqlClient;
 
 namespace MintaProjekt.Pages
 {
@@ -24,7 +26,7 @@ namespace MintaProjekt.Pages
         {
             if (EmployeeID <= 0)
             {
-                _logger.LogWarning($"Cannot delete employee. Invalid employee ID: {EmployeeID}.");
+                _logger.LogWarning("Cannot delete employee. Invalid employee ID: {EmployeeID}", EmployeeID);
                 ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
                 return Page();
             }
@@ -32,12 +34,26 @@ namespace MintaProjekt.Pages
             try
             {
                 await _dataService.DeleteEmployeeAsync(EmployeeID);
-                _logger.LogInformation($"Successfully deleted employee with ID: {EmployeeID}.");
+                _logger.LogInformation("Successfully deleted employee with ID: {EmployeeID}", EmployeeID);
                 return RedirectToPage("/Employees");
             }
-            catch (Exception ex)
+            catch (NoRowsAffectedException)
             {
-                _logger.LogError(ex, "Exception occurred in DeleteEmployeeModel.");
+                ModelState.AddModelError(string.Empty, "No employee found with the given ID.");
+                return Page();
+            }
+            catch (SqlException ex) when (ex.Number == 547)
+            {
+                ModelState.AddModelError(string.Empty, "Cannot delete employee because they are registered as a department leader. Please update department records first.");
+                return Page();
+            }
+            catch (SqlException)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while deleting the employee.");
+                return Page();
+            }
+            catch (Exception)
+            {
                 ModelState.AddModelError(string.Empty, "An error occurred while deleting the employee.");
                 return Page();
             }

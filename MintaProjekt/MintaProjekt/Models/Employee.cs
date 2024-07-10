@@ -28,7 +28,7 @@
             DepartmentID = departmentID;
         }
 
-        // Method to check for null values, must invoke before database insert
+        // Check for null values, must invoke before database insert
         public bool HasInvalidProperties()
         {
             return string.IsNullOrWhiteSpace(FirstName) ||
@@ -38,6 +38,18 @@
                    HireDate == DateOnly.MinValue ||
                    string.IsNullOrWhiteSpace(JobTitle) ||
                    !DepartmentID.HasValue;
+        }
+
+        // Create string representation
+        public override string ToString()
+        {
+            return $"Employee ID: {EmployeeID}\n" +
+                   $"Name: {FirstName} {LastName}\n" +
+                   $"Email: {Email}\n" +
+                   $"Phone Number: {PhoneNumber}\n" +
+                   $"Hire Date: {HireDate:yyyy-MM-dd}\n" +
+                   $"Job Title: {JobTitle}\n" +
+                   $"Department ID: {DepartmentID}";
         }
     }
 
