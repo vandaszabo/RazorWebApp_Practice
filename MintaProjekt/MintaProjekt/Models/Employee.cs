@@ -1,4 +1,6 @@
-﻿namespace MintaProjekt.Models
+﻿using System.Numerics;
+
+namespace MintaProjekt.Models
 {
     public class Employee
     {
@@ -6,7 +8,7 @@
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? Email { get; set; }
-        public string? PhoneNumber { get; set; }
+        public PhoneNumber PhoneNumber { get; set; } = new PhoneNumber();
         public DateOnly HireDate { get; set; }
         public string? JobTitle { get; set; }
         public int? DepartmentID { get; set; }
@@ -14,9 +16,11 @@
         // Computed property for full name
         public string FullName => $"{FirstName} {LastName}";
 
-        public Employee(){}
+        public Employee()
+        {
+        }
 
-        public Employee(int employeeID, string firstName, string lastName, string email, string phoneNumber, DateOnly hireDate, string jobTitle, int departmentID)
+        public Employee(int employeeID, string firstName, string lastName, string email, PhoneNumber phoneNumber, DateOnly hireDate, string jobTitle, int departmentID)
         {
             EmployeeID = employeeID;
             FirstName = firstName;
@@ -34,7 +38,8 @@
             return string.IsNullOrWhiteSpace(FirstName) ||
                    string.IsNullOrWhiteSpace(LastName) ||
                    string.IsNullOrWhiteSpace(Email) ||
-                   string.IsNullOrWhiteSpace(PhoneNumber) ||
+                   PhoneNumber == null ||
+                   PhoneNumber.HasInvalidProperties() ||
                    HireDate == DateOnly.MinValue ||
                    string.IsNullOrWhiteSpace(JobTitle) ||
                    !DepartmentID.HasValue;

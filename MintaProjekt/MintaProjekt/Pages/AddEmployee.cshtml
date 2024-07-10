@@ -23,18 +23,16 @@
             <td><label for="PhoneNumber">Phone Number:</label></td>
             <td>
                 <div style="display: flex; align-items: center;">
-                    <input type="text" value="+36" disabled size="3">
-
-                <select asp-for="SelectedAreaCode">
-                    <option value="20">20</option>
-                    <option value="30">30</option>
-                    <option value="70">70</option>
-                </select>
-                <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control"
-                       pattern="[0-9]{7}" maxlength="7" placeholder="Enter 7 digits" asp-for="PhoneNumber">
+                    <input type="text" value="@Model.Employee.PhoneNumber.CountryCode" disabled size="3" />
+                    <select asp-for="Employee.PhoneNumber.SelectedAreaCode" class="form-control">
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="70">70</option>
+                    </select>
+                    <input type="text" id="Employee_PhoneNumber_LocalPhoneNumber" name="Employee.PhoneNumber.LocalPhoneNumber" class="form-control"
+                           pattern="[0-9]{7}" maxlength="7" placeholder="Enter 7 digits" />
                 </div>
-                <!-- Validation message for phone number -->
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <span asp-validation-for="Employee.PhoneNumber.LocalPhoneNumber" class="text-danger"></span>
             </td>
         </tr>
         <tr>

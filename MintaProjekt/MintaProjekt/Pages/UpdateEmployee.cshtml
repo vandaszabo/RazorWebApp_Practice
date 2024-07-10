@@ -5,7 +5,7 @@
 
 <h2>Update Employee</h2>
 
-<form method="post" asp-page-handler="Select">
+<form method="post" asp-page-handler="Select" onsubmit="return confirmSubmit()>
     <label for="EmployeeID">Select Employee:</label>
     <select id="EmployeeID" asp-for="EmployeeID" asp-items="Model.EmployeeList">
         <option value="">-- Select Employee --</option>

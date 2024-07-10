@@ -13,18 +13,12 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public Employee Employee { get; set; }
 
-        [BindProperty]
-        public string? PhoneNumber { get; set; }
-
-        [BindProperty]
-        public string? SelectedAreaCode { get; set; }
-
         public AddEmployeeModel(ILogger<AddEmployeeModel> logger, EmployeeDataService dataService)
         {
             _logger = logger;
             _dataService = dataService;
-            // Initialize the Employee property 
-            Employee = new Employee{
+            Employee = new Employee
+            {
                 HireDate = DateOnly.FromDateTime(DateTime.Now)
             };
         }
@@ -32,11 +26,7 @@ namespace MintaProjekt.Pages
         // Create Employee
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!string.IsNullOrEmpty(SelectedAreaCode) && !string.IsNullOrEmpty(PhoneNumber))
-            {
-                Employee.PhoneNumber = $"+36{SelectedAreaCode}{PhoneNumber}";
-            }
-
+            _logger.LogInformation("{CountryCode}, {AreaCode}, {Phonenumber}", Employee.PhoneNumber.CountryCode, Employee.PhoneNumber.SelectedAreaCode, Employee.PhoneNumber.LocalPhoneNumber);
             if (Employee.HasInvalidProperties())
             {
                 _logger.LogError("Employee object is not correctly set in AddEmployeeModel");

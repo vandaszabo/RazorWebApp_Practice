@@ -39,7 +39,7 @@ namespace MintaProjekt.Services
                                 reader.GetString(1), // FirstName
                                 reader.GetString(2), // LastName
                                 reader.GetString(3), // Email
-                                reader.GetString(4), // PhoneNumber
+                                PhoneNumber.Parse(reader.GetString(4)), // PhoneNumber
                                 DateOnly.FromDateTime(reader.GetDateTime(5)),
                                 reader.GetString(6), // JobTitle
                                 reader.GetInt32(7)  // DepartmentID
@@ -94,7 +94,7 @@ namespace MintaProjekt.Services
                                     FirstName = reader.GetString(1),
                                     LastName = reader.GetString(2),
                                     Email = reader.GetString(3),
-                                    PhoneNumber = reader.GetString(4),
+                                    PhoneNumber = PhoneNumber.Parse(reader.GetString(4)),
                                     HireDate = DateOnly.FromDateTime(reader.GetDateTime(5)),
                                     JobTitle = reader.GetString(6),
                                     DepartmentID = reader.GetInt32(7)
@@ -151,7 +151,7 @@ namespace MintaProjekt.Services
                         command.Parameters.Add(new SqlParameter("@FirstName", employee.FirstName));
                         command.Parameters.Add(new SqlParameter("@LastName", employee.LastName));
                         command.Parameters.Add(new SqlParameter("@Email", employee.Email));
-                        command.Parameters.Add(new SqlParameter("@PhoneNumber", employee.PhoneNumber));
+                        command.Parameters.Add(new SqlParameter("@PhoneNumber", employee.PhoneNumber.ToString()));
                         command.Parameters.Add(new SqlParameter("@HireDate", employee.HireDate.ToDateTime(TimeOnly.MinValue)));
                         command.Parameters.Add(new SqlParameter("@JobTitle", employee.JobTitle));
                         command.Parameters.Add(new SqlParameter("@DepartmentID", employee.DepartmentID));
