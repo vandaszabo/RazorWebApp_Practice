@@ -6,10 +6,16 @@
 <h2>Delete Employee</h2>
 
 <div asp-validation-summary="All" class="text-danger"></div>
-<form method="post">
+<form method="post" onsubmit="return confirmSubmit()">
     <div>
         <label for="EmployeeID">Enter Employee ID:</label>
         <input type="number" id="EmployeeID" asp-for="EmployeeID" />
     </div>
     <button type="submit">Delete</button>
 </form>
+
+<script>
+    function confirmSubmit() {
+        return confirm('Are you sure you want to delete this employee?');
+    }
+</script>

@@ -268,6 +268,7 @@ namespace MintaProjekt.Services
                 _logger.LogDebug("Try to execute deletion query.");
                 using SqlCommand command = new(query, connection);
 
+                // How many entities changed in the database
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 _logger.LogDebug("Expected number of rows affected: 1");
                 _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
