@@ -46,14 +46,12 @@
         <tr>
             <td><label for="DepartmentID">Department:</label></td>
             <td>
-                <select id="DepartmentID" asp-for="Employee.DepartmentID">
-                    <option value="1">HR</option>
-                    <option value="2">Sales</option>
-                    <option value="3">Finance</option>
-                    <option value="4">IT</option>
-                    <option value="5">Marketing</option>
-                    <option value="6">Administration</option>
-                    <option value="7">Customer Service</option>
+                <label asp-for="Employee.DepartmentName"></label>
+                <select id="DepartmentName" asp-for="Employee.DepartmentName" class="form-control">
+                    @foreach (var department in Enum.GetValues(typeof(Models.Department)))
+                    {
+                        <option value="@department">@department</option>
+                    }
                 </select>
             </td>
         </tr>

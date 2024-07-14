@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using MintaProjekt.Models;
 using MintaProjekt.Exeptions;
+using MintaProjekt.Enums;
 
 namespace MintaProjekt.Services
 {
@@ -21,202 +22,247 @@ namespace MintaProjekt.Services
         // Retrieve all Employees from Database
         public async Task<IEnumerable<Employee>> GetEmployeesAsync()
         {
-            var employees = new List<Employee>();
+            _logger.LogInformation("Starting GetEmployeeAsync");
 
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync(); // Open database connection
-                var command = new SqlCommand("SELECT employee_id, first_name, last_name, email, phone_number, hire_date, job_title, department_id FROM tbl_employee", connection);
+                try 
+                { 
+                    // Create SQL Connection
+                    using var connection = new SqlConnection(_connectionString);
+                    await connection.OpenAsync();
 
-                try
-                {
-                    using (var reader = await command.ExecuteReaderAsync())
+                    // Create SQL Command
+                    string commandText = "EXEC sp_get_employees";
+                    var command = new SqlCommand(commandText, connection);
+
+                    // Execute
+                    _logger.LogInformation("Executing sp_get_employees stored procedure.");
+                    using var reader = await command.ExecuteReaderAsync();
+
+                    var employees = new List<Employee>();
+                    while (await reader.ReadAsync())
                     {
-                        while (await reader.ReadAsync())
-                        {
-                            employees.Add(new Employee(
-                                reader.GetInt32(0),  // EmployeeID
-                                reader.GetString(1), // FirstName
-                                reader.GetString(2), // LastName
-                                reader.GetString(3), // Email
-                                PhoneNumber.Parse(reader.GetString(4)), // PhoneNumber
-                                DateOnly.FromDateTime(reader.GetDateTime(5)),
-                                reader.GetString(6), // JobTitle
-                                reader.GetInt32(7)  // DepartmentID
-                            ));
-                        }
+                        employees.Add(new Employee(
+                            reader.GetInt32(0),  // EmployeeID
+                            reader.GetString(1), // FirstName
+                            reader.GetString(2), // LastName
+                            reader.GetString(3), // Email
+                            PhoneNumber.Parse(reader.GetString(4)), // PhoneNumber
+                            DateOnly.FromDateTime(reader.GetDateTime(5)), // HireDate
+                            reader.GetString(6), // JobTitle
+                            Enum.Parse<DepartmentName>(reader.GetString(7)) // DepartmentName
+                        ));
                     }
 
+                    if(employees.Count == 0)
+                    {
+                        _logger.LogWarning("No employees found.");
+                        throw new NoRowsAffectedException("No employees found in the database.");
+                    }
+
+                    return employees;
+
+                }
+                catch (NoRowsAffectedException ex)
+                {
+                    _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - GetEmployeesAsync method.");
+                    throw;
                 }
                 catch (SqlException ex)
                 {
-                    _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server in EmployeeDataService - GetEmployeesAsync method.");
-                    throw new ApplicationException("Error occurred while accessing SQL Server.", ex);
+                    _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - GetEmployeesAsync method.");
+                    throw;
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Exception occurred in EmployeeDataService - GetEmployeesAsync method.");
-                    throw new ApplicationException("Error occurred in EmployeeDataService.", ex);
+                    throw;
                 }
 
-            }
-            return employees;
         }
 
 
         // Find Employee by ID
-        public async Task<Employee> GetEmployeeByIDAsync(int id)
+        public async Task<Employee> GetEmployeeByIDAsync(int employeeID)
         {
-            if (id <= 0)
+            _logger.LogInformation("Start GetEmployeeByIDAsync method.");
+            _logger.LogDebug("Received ID must be greater than zero.");
+            _logger.LogInformation("Received employee ID: {ID}", employeeID);
+
+            // Validate employeeID
+            if (employeeID <= 0)
             {
-                _logger.LogWarning("Invalid employee ID provided.");
+                _logger.LogWarning("Invalid employee ID: {ID}", employeeID);
                 throw new ArgumentException("Invalid employee ID. ID must be greater than zero.");
             }
 
-            using (var connection = new SqlConnection(_connectionString))
+            try
             {
+                // Create SQL Connection
+                using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
-                string query = "SELECT employee_id, first_name, last_name, email, phone_number, hire_date, job_title, department_id FROM tbl_employee WHERE employee_id = @EmployeeID";
+
+                // Create SQL Command
+                string commandText = "EXEC sp_get_employee_by_id @EmployeeID";
+                using SqlCommand command = new(commandText, connection);
+                command.Parameters.Add(new SqlParameter("@EmployeeID", employeeID));
+
+                // Execute
+                _logger.LogInformation("Executing sp_get_employee_by_id stored procedure.");
+                using SqlDataReader reader = await command.ExecuteReaderAsync();
+                
                 Employee employee = new();
-
-                try
+                if (await reader.ReadAsync())
                 {
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    employee = new Employee(
+                            reader.GetInt32(0),  // EmployeeID
+                            reader.GetString(1), // FirstName
+                            reader.GetString(2), // LastName
+                            reader.GetString(3), // Email
+                            PhoneNumber.Parse(reader.GetString(4)), // PhoneNumber
+                            DateOnly.FromDateTime(reader.GetDateTime(5)), // HireDate
+                            reader.GetString(6), // JobTitle
+                            Enum.Parse<DepartmentName>(reader.GetString(7)) // DepartmentName
+                    );
+                    if (employee.HasInvalidProperties())
                     {
-                        command.Parameters.Add(new SqlParameter("@EmployeeID", id));
-                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
-                        {
-                            if (await reader.ReadAsync())
-                            {
-                                employee = new Employee
-                                {
-                                    EmployeeID = reader.GetInt32(0),
-                                    FirstName = reader.GetString(1),
-                                    LastName = reader.GetString(2),
-                                    Email = reader.GetString(3),
-                                    PhoneNumber = PhoneNumber.Parse(reader.GetString(4)),
-                                    HireDate = DateOnly.FromDateTime(reader.GetDateTime(5)),
-                                    JobTitle = reader.GetString(6),
-                                    DepartmentID = reader.GetInt32(7)
-                                };
-                                if (employee.HasInvalidProperties())
-                                {
-                                    _logger.LogError("Employee with ID {EmployeeID} has invalid properties.", id);
-                                    throw new Exception($"Employee with ID {id} has invalid properties.");
-                                }
-
-                                return employee;
-                            }
-                            else
-                            {
-                                _logger.LogWarning("No employee found with ID {EmployeeID}.", id);
-                                throw new KeyNotFoundException($"No employee found with ID {id}.");
-                            }
-                        }
+                        _logger.LogWarning("Employee with ID {EmployeeID} has invalid properties.", employeeID);
+                        throw new Exception($"Employee with ID {employeeID} has invalid properties.");
                     }
+
+                    return employee;
                 }
-                catch (SqlException ex)
+                else
                 {
-                    _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server in EmployeeDataService - GetEmployeeByIDAsync method.");
-                    throw new ApplicationException("Error occurred while accessing SQL Server.", ex);
+                    _logger.LogError("No employee found with ID {EmployeeID}.", employeeID);
+                    throw new KeyNotFoundException($"No employee found with ID {employeeID}.");
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Exception occurred while reading an employee.");
-                    throw;
-                }
+            }
+            catch(KeyNotFoundException ex)
+            {
+                _logger.LogError(ex, "KeyNotFoundException occurred in EmployeeDataService - GetEmployeeByIDAsync method.");
+                throw;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - GetEmployeeByIDAsync method.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred while reading an employee.");
+                throw;
             }
         }
 
 
         // Create new Employee
-        public async Task AddEmployeeAsync(Employee employee)
+        public async Task AddEmployeeAsync(Employee employee, int userID)
         {
+            _logger.LogInformation("Start AddEmployeeAsync method.");
+            _logger.LogDebug("Received ID must be greater than zero.");
+            _logger.LogInformation("Received employee: {Employee}", employee.ToString());
+
+            // Validate Employee object
             if (employee.HasInvalidProperties())
             {
-                _logger.LogError("Invalid Employee object passed to AddEmployeeAsync. It has null or invalid property.");
+                _logger.LogWarning("Invalid Employee object passed to AddEmployeeAsync. It has null or invalid property.");
                 throw new ArgumentException("Invalid Employee: All fields must be provided.");
             }
 
-            using (var connection = new SqlConnection(_connectionString))
+            try
             {
+                // Create SQL Connection
+                using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
-                string query = "INSERT INTO tbl_employee (first_name, last_name, email, phone_number, hire_date, job_title, department_id) " +
-                               "VALUES (@FirstName, @LastName, @Email, @PhoneNumber, @HireDate, @JobTitle, @DepartmentID)";
 
-                try
-                {
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.Add(new SqlParameter("@FirstName", employee.FirstName));
-                        command.Parameters.Add(new SqlParameter("@LastName", employee.LastName));
-                        command.Parameters.Add(new SqlParameter("@Email", employee.Email));
-                        command.Parameters.Add(new SqlParameter("@PhoneNumber", employee.PhoneNumber.ToString()));
-                        command.Parameters.Add(new SqlParameter("@HireDate", employee.HireDate.ToDateTime(TimeOnly.MinValue)));
-                        command.Parameters.Add(new SqlParameter("@JobTitle", employee.JobTitle));
-                        command.Parameters.Add(new SqlParameter("@DepartmentID", employee.DepartmentID));
+                // Create SQL Command
+                string commandText = "EXEC sp_add_employee @FirstName, @LastName, @Email, @PhoneNumber, @HireDate, @JobTitle, @DepartmentID, @CreatedAt, @CreatedBy";
+                using SqlCommand command = new(commandText, connection);
+                command.Parameters.Add(new SqlParameter("@FirstName", employee.FirstName));
+                command.Parameters.Add(new SqlParameter("@LastName", employee.LastName));
+                command.Parameters.Add(new SqlParameter("@Email", employee.Email));
+                command.Parameters.Add(new SqlParameter("@PhoneNumber", employee.PhoneNumber.ToString()));
+                command.Parameters.Add(new SqlParameter("@HireDate", employee.HireDate.ToDateTime(TimeOnly.MinValue)));
+                command.Parameters.Add(new SqlParameter("@JobTitle", employee.JobTitle));
+                command.Parameters.Add(new SqlParameter("@DepartmentID", (int)employee.DepartmentName));
+                command.Parameters.Add(new SqlParameter("@CreatedAt", DateTime.Now));
+                command.Parameters.Add(new SqlParameter("@CreatedBy", userID));
 
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
-                catch (SqlException ex)
+                // Execute
+                _logger.LogInformation("Executing sp_add_employee stored procedure.");
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+
+                // Validate the result
+                if (rowsAffected == 0)
                 {
-                    _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server in EmployeeDataService - AddEmployeeAsync method.");
-                    throw new ApplicationException("Error occurred while accessing SQL Server.", ex);
+                    _logger.LogWarning("No rows were affected when adding the employee. Employee data: {Employee}", employee.ToString());
+                    throw new NoRowsAffectedException("Failed to add the employee to the database.");
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Exception occurred while adding an employee.");
-                    throw;
-                }
+
+                _logger.LogInformation("Employee added successfully. Rows affected: {RowsAffected}", rowsAffected);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogError(ex, "ArgumentExeption occured in EmployeeDataService - AddEmployeeAsync method.");
+                throw;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server in EmployeeDataService - AddEmployeeAsync method.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred while adding an employee.");
+                throw;
             }
         }
 
 
         // Update existing Employee
-        public async Task UpdateEmployeeAsync(Employee employee)
+        public async Task UpdateEmployeeAsync(Employee employee, int userID)
         {
             _logger.LogDebug("All properties of the Employee object must be non-null.");
             _logger.LogInformation("Received Employee object for update {Employee}", employee.ToString());
 
-            // None of the properties can be null
+            // Validate Employee object
             if (employee.HasInvalidProperties())
             {
                 _logger.LogWarning("Invalid Employee object passed to UpdateEmployeeAsync. It has null or invalid property.");
                 throw new ArgumentException("Invalid Employee data. All properties must be provided.");
             }
 
-            // Create SQL connection
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            // Create SQL query
-            string query = $"EXEC sp_set_employee " +
-            $"@EmployeeID = {employee.EmployeeID}, " +
-            $"@FirstName = '{employee.FirstName}', " +
-            $"@LastName = '{employee.LastName}', " +
-            $"@Email = '{employee.Email}', " +
-            $"@PhoneNumber = '{employee.PhoneNumber}', " +
-            $"@HireDate = '{employee.HireDate.ToDateTime(TimeOnly.MinValue):yyyy-MM-dd}', " +
-            $"@JobTitle = '{employee.JobTitle}', " +
-            $"@DepartmentID = {employee.DepartmentID}";
-
-
             try
             {
-                _logger.LogDebug("Try to execute update query.");
-                using SqlCommand command = new(query, connection);
+                // Create SQL connection
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
 
+                // Create SQL Command
+                string commandText = $"EXEC sp_set_employee @EmployeeID, @FirstName, @LastName, @Email, @PhoneNumber, @HireDate, @JobTitle, @DepartmentID, @ModifiedAt, @ModifiedBy";
+                using SqlCommand command = new(commandText, connection);
+                command.Parameters.Add(new SqlParameter("@FirstName", employee.FirstName));
+                command.Parameters.Add(new SqlParameter("@LastName", employee.LastName));
+                command.Parameters.Add(new SqlParameter("@Email", employee.Email));
+                command.Parameters.Add(new SqlParameter("@PhoneNumber", employee.PhoneNumber.ToString()));
+                command.Parameters.Add(new SqlParameter("@HireDate", employee.HireDate.ToDateTime(TimeOnly.MinValue)));
+                command.Parameters.Add(new SqlParameter("@JobTitle", employee.JobTitle));
+                command.Parameters.Add(new SqlParameter("@DepartmentID", (int)employee.DepartmentName));
+                command.Parameters.Add(new SqlParameter("@ModifiedAt", DateTime.Now));
+                command.Parameters.Add(new SqlParameter("@ModifiedBy", userID));
+
+                // Execute
+                _logger.LogInformation("Executing sp_set_employee stored procedure.");
                 int rowsAffected = await command.ExecuteNonQueryAsync();
-                _logger.LogDebug("Expected number of rows affected: 1");
-                _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
 
-                // If Employee not found
+                // Validate the result
                 if (rowsAffected == 0)
                 {
                     _logger.LogWarning("No employee found with the provided ID to update.");
                     throw new NoRowsAffectedException("The SQL query affected zero rows. Unseccessful employee update.");
                 }
+
+                _logger.LogInformation("Employee updated successfully. Rows affected: {RowsAffected}", rowsAffected);
             }
             catch (ArgumentException ex)
             {
@@ -242,54 +288,48 @@ namespace MintaProjekt.Services
 
 
         // Delete Employee by ID
-        public async Task DeleteEmployeeAsync(int id)
+        public async Task DeleteEmployeeAsync(int employeeID, int userID)
         {
             _logger.LogInformation("Start DeleteEmployeeAsync method.");
             _logger.LogDebug("Received ID must be greater than zero.");
-            _logger.LogInformation("Received employee ID: {ID}", id);
+            _logger.LogInformation("Received employee ID: {ID}", employeeID);
 
-            // Validate id number
-            if (id <= 0)
+            // Validate employeeID
+            if (employeeID <= 0)
             {
-                _logger.LogWarning("Invalid employee ID for deletion: {ID}", id);
+                _logger.LogWarning("Invalid employee ID for deletion: {ID}", employeeID);
                 throw new ArgumentException("Invalid employee ID. ID must be greater than zero.");
             }
 
-            // Create SQL connection
-            using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            // Create SQL query
-            string query = $"EXEC sp_delete_employee_and_update_departments @EmployeeID = {id};";
-            _logger.LogInformation("SQL query: {query}", query);
-
             try
             {
-                _logger.LogDebug("Try to execute deletion query.");
-                using SqlCommand command = new(query, connection);
+                // Create SQL connection
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
 
-                // How many entities changed in the database
+                // Create SQL Command
+                string commandText = "EXEC sp_delete_employee @EmployeeID, @DeletedAt, @DeletedBy";
+                using SqlCommand command = new(commandText, connection);
+                command.Parameters.Add(new SqlParameter("@EmployeeID", employeeID));
+                command.Parameters.Add(new SqlParameter("@DeletedAt", DateTime.Now));
+                command.Parameters.Add(new SqlParameter("@DeletedBy", userID));
+
+                // Execute 
+                _logger.LogInformation("Executing sp_delete_employee stored procedure.");
                 int rowsAffected = await command.ExecuteNonQueryAsync();
-                _logger.LogDebug("Expected number of rows affected: 1");
-                _logger.LogInformation("Actual number of rows affected: {rowsAffected}", rowsAffected);
 
-
-                // Necessary when emplyee with provided id does not exist.
+                // Validate the result
                 if (rowsAffected == 0)
                 {
                     _logger.LogWarning("No employee found with the provided ID to delete.");
                     throw new NoRowsAffectedException("The SQL query affected zero rows. Unseccessful employee deletion.");
                 }
+
+                _logger.LogInformation("Employee deleted successfully. Rows affected: {RowsAffected}", rowsAffected);
             }
             catch (NoRowsAffectedException ex)
             {
                 _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - DeleteEmployeeAsync method. Employee deletion failed.");
-                throw;
-            }
-            // Check ErrorNumber for referential constraint violation
-            catch (SqlException ex) when (ex.Number == 547)
-            {
-                _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - DeleteEmployeeAsync method. Deletion failed. Employee is registered as a department leader. First must delete from department table.");
                 throw;
             }
             catch (SqlException ex)

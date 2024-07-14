@@ -17,7 +17,7 @@ namespace MintaProjekt.Pages
             _dataService = dataService;
         }
 
-        [BindProperty] // automatically bind incoming request data to properties in PageModel class
+        [BindProperty] 
         public int EmployeeID { get; set; }
 
 
@@ -40,11 +40,6 @@ namespace MintaProjekt.Pages
             catch (NoRowsAffectedException)
             {
                 ModelState.AddModelError(string.Empty, "No employee found with the given ID.");
-                return Page();
-            }
-            catch (SqlException ex) when (ex.Number == 547)
-            {
-                ModelState.AddModelError(string.Empty, "Cannot delete employee because they are registered as a department leader. Please update department records first.");
                 return Page();
             }
             catch (SqlException)

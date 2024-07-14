@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using MintaProjekt.Enums;
+using System.Numerics;
 
 namespace MintaProjekt.Models
 {
@@ -11,7 +12,7 @@ namespace MintaProjekt.Models
         public PhoneNumber PhoneNumber { get; set; } = new PhoneNumber();
         public DateOnly HireDate { get; set; }
         public string? JobTitle { get; set; }
-        public int? DepartmentID { get; set; }
+        public DepartmentName DepartmentName { get; set; }
 
         // Computed property for full name
         public string FullName => $"{FirstName} {LastName}";
@@ -20,7 +21,7 @@ namespace MintaProjekt.Models
         {
         }
 
-        public Employee(int employeeID, string firstName, string lastName, string email, PhoneNumber phoneNumber, DateOnly hireDate, string jobTitle, int departmentID)
+        public Employee(int employeeID, string firstName, string lastName, string email, PhoneNumber phoneNumber, DateOnly hireDate, string jobTitle, DepartmentName departmentName)
         {
             EmployeeID = employeeID;
             FirstName = firstName;
@@ -29,7 +30,7 @@ namespace MintaProjekt.Models
             PhoneNumber = phoneNumber;
             HireDate = hireDate;
             JobTitle = jobTitle;
-            DepartmentID = departmentID;
+            DepartmentName = departmentName;
         }
 
         // Check for null values, must invoke before database insert
@@ -42,7 +43,7 @@ namespace MintaProjekt.Models
                    PhoneNumber.HasInvalidProperties() ||
                    HireDate == DateOnly.MinValue ||
                    string.IsNullOrWhiteSpace(JobTitle) ||
-                   !DepartmentID.HasValue;
+                   !Enum.IsDefined(typeof(DepartmentName), DepartmentName);
         }
 
         // Create string representation
@@ -54,7 +55,7 @@ namespace MintaProjekt.Models
                    $"Phone Number: {PhoneNumber}\n" +
                    $"Hire Date: {HireDate:yyyy-MM-dd}\n" +
                    $"Job Title: {JobTitle}\n" +
-                   $"Department ID: {DepartmentID}";
+                   $"DepartmentName: {DepartmentName}";
         }
     }
 
