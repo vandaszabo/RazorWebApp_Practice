@@ -34,8 +34,20 @@
             <td><input type="email" id="Email" asp-for="SelectedEmployee.Email" /></td>
         </tr>
         <tr>
-            <td><label for="PhoneNumber">Phone Number:</label></td>
-            <td><input type="text" id="PhoneNumber" asp-for="SelectedEmployee.PhoneNumber" /></td>
+                <td><label for="PhoneNumber">Phone Number:</label></td>
+                <td>
+                    <div style="display: flex; align-items: center;">
+                        <input type="text" value="@Model.SelectedEmployee.PhoneNumber.CountryCode" disabled size="3" />
+                        <select asp-for="SelectedEmployee.PhoneNumber.SelectedAreaCode" class="form-control">
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="70">70</option>
+                        </select>
+                        <input type="text" id="Employee_PhoneNumber_LocalPhoneNumber" name="Employee.PhoneNumber.LocalPhoneNumber" class="form-control"
+                               pattern="[0-9]{7}" maxlength="7" placeholder="Enter 7 digits" />
+                    </div>
+                    <span asp-validation-for="SelectedEmployee.PhoneNumber.LocalPhoneNumber" class="text-danger"></span>
+                </td>
         </tr>
         <tr>
             <td><label for="HireDate">Hire Date:</label></td>
@@ -46,8 +58,16 @@
             <td><input type="text" id="JobTitle" asp-for="SelectedEmployee.JobTitle" /></td>
         </tr>
         <tr>
-            <td><label for="DepartmentID">Department ID:</label></td>
-            <td><input type="number" id="DepartmentID" asp-for="SelectedEmployee.DepartmentID" /></td>
+            <td><label for="DepartmentName">Department:</label></td>
+                <td>
+                    <label asp-for="SelectedEmployee.DepartmentName"></label>
+                    <select id="DepartmentName" asp-for="SelectedEmployee.DepartmentName" class="form-control">
+                        @foreach (var department in Enum.GetValues(typeof(Models.Department)))
+                        {
+                            <option value="@department">@department</option>
+                        }
+                    </select>
+                </td>
         </tr>
         <tr>
             <td></td>

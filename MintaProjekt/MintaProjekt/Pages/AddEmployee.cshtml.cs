@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Models;
 using MintaProjekt.Services;
+using MintaProjekt.Utilities;
 
 namespace MintaProjekt.Pages
 {
@@ -35,8 +36,8 @@ namespace MintaProjekt.Pages
             }
             try
             {
-                await _dataService.AddEmployeeAsync(Employee);
-                _logger.LogInformation($"New Employee added with ID: {Employee.EmployeeID}, Name: {Employee.FullName}");
+                await _dataService.AddEmployeeAsync(Employee, AppUser.ID);
+                _logger.LogInformation("New Employee added: {Employee}", Employee.ToString());
                 return RedirectToPage("/Employees");
             }
             catch (Exception ex)

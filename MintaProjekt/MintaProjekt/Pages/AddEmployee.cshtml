@@ -44,11 +44,11 @@
             <td><input type="text" id="JobTitle" asp-for="Employee.JobTitle" /></td>
         </tr>
         <tr>
-            <td><label for="DepartmentID">Department:</label></td>
+            <td><label for="DepartmentName">Department:</label></td>
             <td>
                 <label asp-for="Employee.DepartmentName"></label>
                 <select id="DepartmentName" asp-for="Employee.DepartmentName" class="form-control">
-                    @foreach (var department in Enum.GetValues(typeof(Models.Department)))
+                    @foreach (var department in Enum.GetValues(typeof(Enums.DepartmentName)))
                     {
                         <option value="@department">@department</option>
                     }

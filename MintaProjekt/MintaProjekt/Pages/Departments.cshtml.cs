@@ -13,7 +13,7 @@ namespace MintaProjekt.Pages
         public IEnumerable<Department>? Departments { get; private set; }
 
         [BindProperty]
-        public int? NewLeaderID { get; set; } = 0;
+        public int NewLeaderID { get; set; }
         [BindProperty] 
         public int DepartmentID { get; set; }
 
@@ -43,12 +43,7 @@ namespace MintaProjekt.Pages
         // Update Department leader
         public async Task<IActionResult> OnPostAsync()
         {
-            if (NewLeaderID == -1)
-            {
-                NewLeaderID = null;
-            }
-
-            if (NewLeaderID.HasValue && NewLeaderID <= 0)
+            if (NewLeaderID <= 0)
             {
                 _logger.LogError("Invalid employee ID.");
                 ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
@@ -57,7 +52,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataService.UpdateDepartmentLeaderAsync(DepartmentID, NewLeaderID);
+                await _dataService.AddDepartmentLeaderAsync(DepartmentID, NewLeaderID);
                 return await OnGetAsync();
             }
             catch (Exception ex)

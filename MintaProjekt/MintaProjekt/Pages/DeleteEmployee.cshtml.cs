@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Exeptions;
 using MintaProjekt.Services;
+using MintaProjekt.Utilities;
 using System.Data.SqlClient;
 
 namespace MintaProjekt.Pages
@@ -33,7 +34,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataService.DeleteEmployeeAsync(EmployeeID);
+                await _dataService.DeleteEmployeeAsync(EmployeeID, AppUser.ID);
                 _logger.LogInformation("Successfully deleted employee with ID: {EmployeeID}", EmployeeID);
                 return RedirectToPage("/Employees");
             }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
 using MintaProjekt.Services;
+using MintaProjekt.Utilities;
 using System.Data.SqlClient;
 
 namespace MintaProjekt.Pages
@@ -46,7 +47,7 @@ namespace MintaProjekt.Pages
             if (EmployeeID <= 0)
             {
                 _logger.LogError("Invalid employee ID.");
-                ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
+                ModelState.AddModelError(string.Empty, "Invalid employee selected.");
                 return RedirectToPage("/Error");
             }
 
@@ -84,7 +85,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataService.UpdateEmployeeAsync(SelectedEmployee);
+                await _dataService.UpdateEmployeeAsync(SelectedEmployee, AppUser.ID);
                 _logger.LogInformation("Successful employee update for {ID}", SelectedEmployee.EmployeeID);
                 return RedirectToPage("/Employees");
             }

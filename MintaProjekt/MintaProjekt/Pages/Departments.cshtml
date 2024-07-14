@@ -11,7 +11,7 @@
         <tr>
             <th>Department ID</th>
             <th>Department Name</th>
-            <th>Leader ID</th>
+            <th>Leaders</th>
             <th>Select new leader</th>
             <th>Submit</th>
         </tr>
@@ -24,13 +24,18 @@
                 <tr>
                     <td>@department.DepartmentID</td>
                     <td>@department.DepartmentName</td>
-                    <td>@department.LeaderID</td>
+                    <td>
+                        @foreach (var leader in department.Leaders)
+                        {
+                            <span>@leader.FullName</span>
+                            <br />
+                        }
+                    </td>
                     <td>
                          <form method="post">
                             <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
                             <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FullName"))">
                                 <option value="" disabled selected>Select an option</option>
-                                <option value="-1">No leader</option>
                             </select>
                         <td>
                             <button type="submit">Update Leader</button>
