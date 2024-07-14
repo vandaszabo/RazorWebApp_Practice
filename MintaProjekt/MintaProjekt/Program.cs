@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using MintaProjekt.DbContext;
 using MintaProjekt.Services;
 using Serilog;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 internal class Program
 {
@@ -25,11 +28,30 @@ internal class Program
         builder.Host.UseSerilog();
 
         // Add services to the container.
+
+        // Add authentication services and handlers for cookie
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
+        options => builder.Configuration.Bind("CookieSettings", options));
+
+        // Add DbContext
         builder.Services.AddDbContext<UserDbContext>(options =>
                     options.UseSqlServer(configuration.GetConnectionString("MSSQLConnection")));
 
+
         builder.Services.AddRazorPages();
-        builder.Services.AddScoped<EmployeeDataService>();  // Register Service Class
+
+        // Using an authorization filter, setting the fallback policy uses endpoint routing. Require all users be authenticated.
+        builder.Services.AddControllers(config =>
+        {
+            var policy = new AuthorizationPolicyBuilder()
+                             .RequireAuthenticatedUser()
+                             .Build();
+            config.Filters.Add(new AuthorizeFilter(policy));
+        });
+
+        // Register Service Classes
+        builder.Services.AddScoped<EmployeeDataService>();  
         builder.Services.AddScoped<DepartmentDataService>();
 
 
