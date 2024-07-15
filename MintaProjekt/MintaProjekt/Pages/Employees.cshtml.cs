@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Models;
@@ -5,6 +6,7 @@ using MintaProjekt.Services;
 
 namespace MintaProjekt.Pages
 {
+    [Authorize(Policy = "CanSelectData")]
     public class EmployeesModel : PageModel
     {
         private readonly ILogger<EmployeesModel> _logger;

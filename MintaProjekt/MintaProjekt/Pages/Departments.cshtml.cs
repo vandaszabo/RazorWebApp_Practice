@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Models;
 using MintaProjekt.Services;
-using System.Reflection;
 
 namespace MintaProjekt.Pages
 {

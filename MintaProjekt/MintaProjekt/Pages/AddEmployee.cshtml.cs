@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Models;
+using MintaProjekt.Pages.Base;
 using MintaProjekt.Services;
-using MintaProjekt.Utilities;
 
 namespace MintaProjekt.Pages
 {
-    public class AddEmployeeModel : PageModel
+    [Authorize(Policy = "CanAddData")]
+    public class AddEmployeeModel : BasePageModel
     {
         private readonly ILogger<AddEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataService;
@@ -14,7 +17,7 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService)
+        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager) : base(userManager)
         {
             _logger = logger;
             _dataService = dataService;
@@ -28,6 +31,13 @@ namespace MintaProjekt.Pages
         public async Task<IActionResult> OnPostAsync()
         {
             _logger.LogInformation("{CountryCode}, {AreaCode}, {Phonenumber}", Employee.PhoneNumber.CountryCode, Employee.PhoneNumber.SelectedAreaCode, Employee.PhoneNumber.LocalPhoneNumber);
+
+            if(UserId == null)
+            {
+                _logger.LogError("UserId is null in AddEmployeeModel");
+                ModelState.AddModelError(string.Empty, "Cannot add employee with invalid userID.");
+                return Page();
+            }
             if (Employee.HasInvalidProperties())
             {
                 _logger.LogError("Employee object is not correctly set in AddEmployeeModel");
@@ -36,7 +46,7 @@ namespace MintaProjekt.Pages
             }
             try
             {
-                await _dataService.AddEmployeeAsync(Employee, AppUser.ID);
+                await _dataService.AddEmployeeAsync(Employee, UserId);
                 _logger.LogInformation("New Employee added: {Employee}", Employee.ToString());
                 return RedirectToPage("/Employees");
             }

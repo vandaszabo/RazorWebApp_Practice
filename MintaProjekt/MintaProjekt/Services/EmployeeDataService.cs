@@ -156,7 +156,7 @@ namespace MintaProjekt.Services
 
 
         // Create new Employee
-        public async Task AddEmployeeAsync(Employee employee, int userID)
+        public async Task AddEmployeeAsync(Employee employee, string userID)
         {
             _logger.LogInformation("Start AddEmployeeAsync method.");
             _logger.LogDebug("Received ID must be greater than zero.");
@@ -220,7 +220,7 @@ namespace MintaProjekt.Services
 
 
         // Update existing Employee
-        public async Task UpdateEmployeeAsync(Employee employee, int userID)
+        public async Task UpdateEmployeeAsync(Employee employee, string userID)
         {
             _logger.LogDebug("All properties of the Employee object must be non-null.");
             _logger.LogInformation("Received Employee object for update {Employee}", employee.ToString());
@@ -288,7 +288,7 @@ namespace MintaProjekt.Services
 
 
         // Delete Employee by ID
-        public async Task DeleteEmployeeAsync(int employeeID, int userID)
+        public async Task DeleteEmployeeAsync(int employeeID, string userID)
         {
             _logger.LogInformation("Start DeleteEmployeeAsync method.");
             _logger.LogDebug("Received ID must be greater than zero.");

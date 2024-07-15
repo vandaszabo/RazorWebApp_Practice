@@ -30,6 +30,7 @@ namespace MintaProjekt
             AddSerilog(builder);
             AddDbContext(builder, configuration);
             AddAuthentication(builder);
+            AddAuthorization(builder);
             AddIdentity(builder);
 
             // Add Controllers With Authorization filter
@@ -49,6 +50,7 @@ namespace MintaProjekt
 
             AddAdminRole(app);
             AddUserRole(app);
+            AddManagerRole(app);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -106,6 +108,18 @@ namespace MintaProjekt
             options => builder.Configuration.Bind("CookieSettings", options));
         }
 
+        // Add Authorization
+        private static void AddAuthorization(WebApplicationBuilder builder)
+        {
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanSelectData", policy => policy.RequireClaim("Permission", "Select"));
+                options.AddPolicy("CanAddData", policy => policy.RequireClaim("Permission", "Add"));
+                options.AddPolicy("CanUpdateData", policy => policy.RequireClaim("Permission", "Update"));
+                options.AddPolicy("CanDeleteData", policy => policy.RequireClaim("Permission", "Delete"));
+            });
+        }
+
         // Add Identity
         private static void AddIdentity(WebApplicationBuilder builder)
         {
@@ -146,6 +160,22 @@ namespace MintaProjekt
             catch (Exception ex)
             {
                 Log.Logger.Error(ex, "An error occurred while creating or setting up the User role.");
+            }
+        }
+
+        // Add Manager Role
+        private static void AddManagerRole(WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            try
+            {
+                var userRole = CreateRole(roleManager, "Manager").Result;
+                AddClaimsToManagerRole(roleManager, userRole).Wait();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "An error occurred while creating or setting up the Manager role.");
             }
         }
 
@@ -196,9 +226,9 @@ namespace MintaProjekt
             try
             {
                 await roleManager.AddClaimAsync(role, new Claim("Permission", "Select"));
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Add"));
                 await roleManager.AddClaimAsync(role, new Claim("Permission", "Update"));
                 await roleManager.AddClaimAsync(role, new Claim("Permission", "Delete"));
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Read"));
             }
             catch (Exception ex)
             {
@@ -212,11 +242,27 @@ namespace MintaProjekt
         {
             try
             {
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Read"));
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Select"));
             }
             catch (Exception ex)
             {
                 Log.Logger.Error(ex, "An error occurred while adding claims to the User role.");
+                throw;
+            }
+        }
+
+        // Create Claims for Manager Role
+        private static async Task AddClaimsToManagerRole(RoleManager<IdentityRole> roleManager, IdentityRole role)
+        {
+            try
+            {
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Select")); //type and value
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Add"));
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Update"));
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "An error occurred while adding claims to the Manager role.");
                 throw;
             }
         }

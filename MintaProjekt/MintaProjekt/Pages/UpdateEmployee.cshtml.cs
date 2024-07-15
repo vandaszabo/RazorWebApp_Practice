@@ -1,15 +1,17 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
+using MintaProjekt.Pages.Base;
 using MintaProjekt.Services;
-using MintaProjekt.Utilities;
 using System.Data.SqlClient;
 
 namespace MintaProjekt.Pages
 {
-    public class UpdateEmployeeModel : PageModel
+    [Authorize(Policy = "CanUpdateData")]
+    public class UpdateEmployeeModel : BasePageModel
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataService;
@@ -21,7 +23,7 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public int EmployeeID { get; set; }
 
-        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataService dataService)
+        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager) : base(userManager)
         {
             _logger = logger;
             _dataService = dataService;
@@ -76,6 +78,13 @@ namespace MintaProjekt.Pages
         // Update Employee information
         public async Task<IActionResult> OnPostUpdateAsync()
         {
+            if (UserId == null)
+            {
+                _logger.LogError("UserId is null in UpdateEmployeeModel");
+                ModelState.AddModelError(string.Empty, "Cannot update with invalid userID.");
+                return Page();
+            }
+
             if (SelectedEmployee == null || SelectedEmployee.EmployeeID <= 0)
             {
                 _logger.LogWarning($"SelectedEmployee object is not correctly set in UpdateEmployeeModel.");
@@ -85,7 +94,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataService.UpdateEmployeeAsync(SelectedEmployee, AppUser.ID);
+                await _dataService.UpdateEmployeeAsync(SelectedEmployee, UserId);
                 _logger.LogInformation("Successful employee update for {ID}", SelectedEmployee.EmployeeID);
                 return RedirectToPage("/Employees");
             }
