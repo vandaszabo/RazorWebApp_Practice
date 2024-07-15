@@ -109,7 +109,7 @@ namespace MintaProjekt
         // Add Identity
         private static void AddIdentity(WebApplicationBuilder builder)
         {
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false) // Set true if confirmation required
            .AddRoles<IdentityRole>()
            .AddEntityFrameworkStores<UserDbContext>();
 

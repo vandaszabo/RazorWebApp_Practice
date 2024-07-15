@@ -27,11 +27,22 @@
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
+            <div class="form-floating mb-3">
+                <select asp-for="Role" class="form-control">
+                    <option value="">Select a role</option>
+                    @foreach (var role in Model.Roles)
+                    {
+                        <option value="@role.Value">@role.Text</option>
+                    }
+                </select>
+                <label asp-for="Role">Select User Role</label>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
     </div>
     <div class="col-md-6 col-md-offset-2">
-        <section>
+       @*  <section>
             <h3>Use another service to register.</h3>
             <hr />
             @{
@@ -58,7 +69,7 @@
                     </form>
                 }
             }
-        </section>
+        </section> *@
     </div>
 </div>
 
