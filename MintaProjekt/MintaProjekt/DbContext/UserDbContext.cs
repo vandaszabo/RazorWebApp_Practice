@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MintaProjekt.DbContext
 {
-    public class UserDbContext : IdentityDbContext<IdentityUser>
+    public class UserDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
     {
         public UserDbContext(DbContextOptions<UserDbContext> options) : base(options)
         {
         }
+
     }
+
 }

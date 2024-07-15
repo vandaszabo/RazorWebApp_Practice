@@ -7,12 +7,12 @@ using MintaProjekt.Enums;
 
 namespace MintaProjekt.Services
 {
-    public class EmployeeDataService
+    public class EmployeeDataService : IEmployeeDataService
     {
         private readonly string? _connectionString;
-        private readonly ILogger<EmployeeDataService> _logger;
+        private readonly ILogger<IEmployeeDataService> _logger;
 
-        public EmployeeDataService(ILogger<EmployeeDataService> logger, IConfiguration configuration)
+        public EmployeeDataService(ILogger<IEmployeeDataService> logger, IConfiguration configuration)
         {
             _logger = logger;
             _connectionString = configuration.GetConnectionString("MSSQLConnection");

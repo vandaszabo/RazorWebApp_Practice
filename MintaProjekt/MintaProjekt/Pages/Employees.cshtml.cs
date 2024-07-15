@@ -8,10 +8,10 @@ namespace MintaProjekt.Pages
     public class EmployeesModel : PageModel
     {
         private readonly ILogger<EmployeesModel> _logger;
-        private readonly EmployeeDataService _dataService;
+        private readonly IEmployeeDataService _dataService;
         public IEnumerable<Employee>? Employees { get; private set; }
 
-        public EmployeesModel(ILogger<EmployeesModel> logger, EmployeeDataService dataService)
+        public EmployeesModel(ILogger<EmployeesModel> logger, IEmployeeDataService dataService)
         {
             _logger = logger;
             _dataService = dataService;

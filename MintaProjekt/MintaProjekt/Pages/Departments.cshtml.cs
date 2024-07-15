@@ -8,7 +8,7 @@ namespace MintaProjekt.Pages
 {
     public class DepartmentsModel : PageModel
     {
-        private readonly DepartmentDataService _dataService;
+        private readonly IDepartmentDataService _dataService;
         private readonly ILogger<DepartmentDataService> _logger;
         public IEnumerable<Department>? Departments { get; private set; }
 
@@ -18,7 +18,7 @@ namespace MintaProjekt.Pages
         public int DepartmentID { get; set; }
 
 
-        public DepartmentsModel(ILogger<DepartmentDataService> logger , DepartmentDataService dataService)
+        public DepartmentsModel(ILogger<DepartmentDataService> logger , IDepartmentDataService dataService)
         {
             _logger = logger;
             _dataService = dataService;

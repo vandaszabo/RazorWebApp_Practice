@@ -2,92 +2,224 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.Extensions.Configuration;
 using MintaProjekt.DbContext;
 using MintaProjekt.Services;
 using Serilog;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
-internal class Program
+namespace MintaProjekt
 {
-    private static void Main(string[] args)
+    internal class Program
     {
-        var builder = WebApplication.CreateBuilder(args);
+        private static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+            var configuration = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+             .AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true)
+             .AddEnvironmentVariables()
+             .Build();
 
-        // Serilog configuration
-        var configuration = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json")
-                    .Build();
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
 
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(configuration)
-            .CreateLogger();
+            AddSerilog(builder);
+            AddDbContext(builder, configuration);
+            AddAuthentication(builder);
+            AddIdentity(builder);
+
+            // Add Controllers With Authorization filter
+            //Require all users to be authenticated.
+            builder.Services.AddControllers(config =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                                 .RequireAuthenticatedUser()
+                                 .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+
+            builder.Services.AddScoped<IEmployeeDataService, EmployeeDataService>();
+            builder.Services.AddScoped<IDepartmentDataService, DepartmentDataService>();
+
+            var app = builder.Build();
+
+            AddAdminRole(app);
+            AddUserRole(app);
+
+            // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapRazorPages();
+
+            try
+            {
+                Log.Information("Starting up the host");
+                app.Run();
+
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectedly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
+        }
 
 
-        // Use Serilog
-        builder.Host.UseSerilog();
-
-        // Add services to the container.
-
-        // Add authentication services and handlers for cookie
-        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
-        options => builder.Configuration.Bind("CookieSettings", options));
+        // Add Serilog
+        private static void AddSerilog(WebApplicationBuilder builder)
+        {
+            builder.Host.UseSerilog();
+        }
 
         // Add DbContext
-        builder.Services.AddDbContext<UserDbContext>(options =>
-                    options.UseSqlServer(configuration.GetConnectionString("MSSQLConnection")));
-
-
-        builder.Services.AddRazorPages();
-
-        // Using an authorization filter, setting the fallback policy uses endpoint routing. Require all users be authenticated.
-        builder.Services.AddControllers(config =>
+        private static void AddDbContext(WebApplicationBuilder builder, IConfiguration configuration)
         {
-            var policy = new AuthorizationPolicyBuilder()
-                             .RequireAuthenticatedUser()
-                             .Build();
-            config.Filters.Add(new AuthorizeFilter(policy));
-        });
-
-        // Register Service Classes
-        builder.Services.AddScoped<EmployeeDataService>();  
-        builder.Services.AddScoped<DepartmentDataService>();
-
-
-        var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseExceptionHandler("/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts();
+            builder.Services.AddDbContext<UserDbContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("MSSQLConnection")));
         }
 
-        app.UseHttpsRedirection();
-        app.UseStaticFiles();
-
-        app.UseRouting();
-
-        app.UseAuthentication();
-        app.UseAuthorization();
-
-        app.MapRazorPages();
-
-        try
+        // Add Authentication
+        private static void AddAuthentication(WebApplicationBuilder builder)
         {
-            Log.Information("Starting up the host");
-            app.Run();
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
+            options => builder.Configuration.Bind("CookieSettings", options));
+        }
 
-        }
-        catch (Exception ex)
+        // Add Identity
+        private static void AddIdentity(WebApplicationBuilder builder)
         {
-            Log.Fatal(ex, "Host terminated unexpectedly");
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+           .AddRoles<IdentityRole>()
+           .AddEntityFrameworkStores<UserDbContext>();
+
+            builder.Services.AddRazorPages();
         }
-        finally
+
+        // Add Admin Role
+        private static void AddAdminRole(WebApplication app)
         {
-            Log.CloseAndFlush();
+            using var scope = app.Services.CreateScope();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            try
+            {
+                var adminRole = CreateRole(roleManager, "Admin").Result;
+                AddClaimsToAdminRole(roleManager, adminRole).Wait();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "An error occurred while creating or setting up the Admin role.");
+            }
         }
+
+        // Add User Role
+        private static void AddUserRole(WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            try
+            {
+                var userRole = CreateRole(roleManager, "User").Result;
+                AddClaimsToUserRole(roleManager, userRole).Wait();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "An error occurred while creating or setting up the User role.");
+            }
+        }
+
+
+        // Create Roles
+        private static async Task<IdentityRole> CreateRole(RoleManager<IdentityRole> roleManager, string roleName)
+        {
+            try
+            {
+                var roleExist = await roleManager.RoleExistsAsync(roleName);
+                // ha nincs még ilyen role, létrehozzuk
+                if (!roleExist)
+                {
+                    var result = await roleManager.CreateAsync(new IdentityRole(roleName));
+                    if (result.Succeeded)
+                    {
+                        Log.Logger.Information("Role {RoleName} created successfully", roleName);
+                    }
+                    else
+                    {
+                        var errorMessage = $"Error occurred while creating role {roleName}: {string.Join(", ", result.Errors.Select(e => e.Description))}";
+                        Log.Logger.Error(errorMessage);
+                        throw new InvalidOperationException(errorMessage);
+                    }
+                }
+                // megkeressük és megadjuk visszatérési értéknek, ha nem találjuk hibát dobunk
+                var role = await roleManager.FindByNameAsync(roleName);
+                if (role == null)
+                {
+                    var errorMessage = $"Role {roleName} was not found after creation.";
+                    Log.Logger.Error(errorMessage);
+                    throw new InvalidOperationException(errorMessage);
+                }
+
+                return role;
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "An error occurred while creating or retrieving the role {RoleName}", roleName);
+                throw;
+            }
+        }
+
+
+        // Create Claims for Admin Role
+        private static async Task AddClaimsToAdminRole(RoleManager<IdentityRole> roleManager, IdentityRole role)
+        {
+            try
+            {
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Select"));
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Update"));
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Delete"));
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Read"));
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "An error occurred while adding claims to the Admin role.");
+                throw;
+            }
+        }
+
+        // Create Claims for User Role
+        private static async Task AddClaimsToUserRole(RoleManager<IdentityRole> roleManager, IdentityRole role)
+        {
+            try
+            {
+                await roleManager.AddClaimAsync(role, new Claim("Permission", "Read"));
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "An error occurred while adding claims to the User role.");
+                throw;
+            }
+        }
+
     }
 }
