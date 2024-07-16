@@ -6,7 +6,7 @@ using MintaProjekt.DbContext;
 using MintaProjekt.Services;
 using Serilog;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
+using MintaProjekt.Authorization;
 
 namespace MintaProjekt
 {
@@ -34,12 +34,12 @@ namespace MintaProjekt
             AddIdentity(builder);
             AddControllers(builder);
             AddScopedServices(builder);
+            AddCoreAdmin(builder);
 
             var app = builder.Build();
 
-            AddAdminRole(app);
-            AddUserRole(app);
-            AddManagerRole(app);
+            // Initialize Roles
+            RoleInitializer.AddRoles(app);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -56,6 +56,8 @@ namespace MintaProjekt
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseCoreAdminCustomUrl("/Administrator"); // Configure the admin URL
 
             app.MapRazorPages();
 
@@ -95,6 +97,12 @@ namespace MintaProjekt
             builder.Host.UseSerilog();
         }
 
+        // Add Core Admin
+        private static void AddCoreAdmin(WebApplicationBuilder builder)
+        {
+            builder.Services.AddCoreAdmin("Admin"); // When adding Core Admin, provide the list of Roles required to access the panel
+        }
+
         // Add Scoped Services
         private static void AddScopedServices(WebApplicationBuilder builder)
         {
@@ -120,13 +128,11 @@ namespace MintaProjekt
         // Add Authorization
         private static void AddAuthorization(WebApplicationBuilder builder)
         {
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("CanSelectData", policy => policy.RequireClaim("Permission", "Select"));
-                options.AddPolicy("CanAddData", policy => policy.RequireClaim("Permission", "Add"));
-                options.AddPolicy("CanUpdateData", policy => policy.RequireClaim("Permission", "Update"));
-                options.AddPolicy("CanDeleteData", policy => policy.RequireClaim("Permission", "Delete"));
-            });
+            builder.Services.AddAuthorizationBuilder()
+                .AddPolicy("CanSelectData", policy => policy.RequireClaim("Permission", "Select"))
+                .AddPolicy("CanAddData", policy => policy.RequireClaim("Permission", "Add"))
+                .AddPolicy("CanUpdateData", policy => policy.RequireClaim("Permission", "Update"))
+                .AddPolicy("CanDeleteData", policy => policy.RequireClaim("Permission", "Delete"));
         }
 
         // Add Identity
@@ -137,143 +143,6 @@ namespace MintaProjekt
            .AddEntityFrameworkStores<UserDbContext>();
 
             builder.Services.AddRazorPages();
-        }
-
-        // Add Admin Role
-        private static void AddAdminRole(WebApplication app)
-        {
-            using var scope = app.Services.CreateScope();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-            try
-            {
-                var adminRole = CreateRole(roleManager, "Admin").Result;
-                AddClaimsToAdminRole(roleManager, adminRole).Wait();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "An error occurred while creating or setting up the Admin role.");
-            }
-        }
-
-        // Add User Role
-        private static void AddUserRole(WebApplication app)
-        {
-            using var scope = app.Services.CreateScope();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            try
-            {
-                var userRole = CreateRole(roleManager, "User").Result;
-                AddClaimsToUserRole(roleManager, userRole).Wait();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "An error occurred while creating or setting up the User role.");
-            }
-        }
-
-        // Add Manager Role
-        private static void AddManagerRole(WebApplication app)
-        {
-            using var scope = app.Services.CreateScope();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            try
-            {
-                var userRole = CreateRole(roleManager, "Manager").Result;
-                AddClaimsToManagerRole(roleManager, userRole).Wait();
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "An error occurred while creating or setting up the Manager role.");
-            }
-        }
-
-
-        // Create Roles
-        private static async Task<IdentityRole> CreateRole(RoleManager<IdentityRole> roleManager, string roleName)
-        {
-            try
-            {
-                var roleExist = await roleManager.RoleExistsAsync(roleName);
-                // ha nincs még ilyen role, létrehozzuk
-                if (!roleExist)
-                {
-                    var result = await roleManager.CreateAsync(new IdentityRole(roleName));
-                    if (result.Succeeded)
-                    {
-                        Log.Logger.Information("Role {RoleName} created successfully", roleName);
-                    }
-                    else
-                    {
-                        var errorMessage = $"Error occurred while creating role {roleName}: {string.Join(", ", result.Errors.Select(e => e.Description))}";
-                        Log.Logger.Error(errorMessage);
-                        throw new InvalidOperationException(errorMessage);
-                    }
-                }
-                // megkeressük és megadjuk visszatérési értéknek, ha nem találjuk hibát dobunk
-                var role = await roleManager.FindByNameAsync(roleName);
-                if (role == null)
-                {
-                    var errorMessage = $"Role {roleName} was not found after creation.";
-                    Log.Logger.Error(errorMessage);
-                    throw new InvalidOperationException(errorMessage);
-                }
-
-                return role;
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "An error occurred while creating or retrieving the role {RoleName}", roleName);
-                throw;
-            }
-        }
-
-
-        // Create Claims for Admin Role
-        private static async Task AddClaimsToAdminRole(RoleManager<IdentityRole> roleManager, IdentityRole role)
-        {
-            try
-            {
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Select"));
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Add"));
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Update"));
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Delete"));
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "An error occurred while adding claims to the Admin role.");
-                throw;
-            }
-        }
-
-        // Create Claims for User Role
-        private static async Task AddClaimsToUserRole(RoleManager<IdentityRole> roleManager, IdentityRole role)
-        {
-            try
-            {
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Select"));
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "An error occurred while adding claims to the User role.");
-                throw;
-            }
-        }
-
-        // Create Claims for Manager Role
-        private static async Task AddClaimsToManagerRole(RoleManager<IdentityRole> roleManager, IdentityRole role)
-        {
-            try
-            {
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Select")); //type and value
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Add"));
-                await roleManager.AddClaimAsync(role, new Claim("Permission", "Update"));
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex, "An error occurred while adding claims to the Manager role.");
-                throw;
-            }
         }
 
     }

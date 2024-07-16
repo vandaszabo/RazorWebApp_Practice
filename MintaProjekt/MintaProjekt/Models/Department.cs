@@ -23,5 +23,13 @@ namespace MintaProjekt.Models
             Leaders = leaders;
         }
 
+        public override string ToString()
+        {
+            var employeesStr = Employees != null ? string.Join(", ", Employees.Select(e => e.ToString())) : "No Employees";
+            var leadersStr = Leaders != null ? string.Join(", ", Leaders.Select(l => l.ToString())) : "No Leaders";
+
+            return $"DepartmentID: {DepartmentID}, DepartmentName: {DepartmentName}, Employees: [{employeesStr}], Leaders: [{leadersStr}]";
+        }
+
     }
 }
