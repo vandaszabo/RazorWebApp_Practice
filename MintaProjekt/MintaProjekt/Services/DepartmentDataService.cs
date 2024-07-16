@@ -74,7 +74,7 @@ namespace MintaProjekt.Services
 
                         department.Employees.Add(employee);
 
-                        if (startDate.HasValue && (!endDate.HasValue || endDate >= DateTime.Today))
+                        if (startDate.HasValue && (!endDate.HasValue || endDate > DateTime.Today))
                         {
                             department.Leaders.Add(employee);
                         }
@@ -153,6 +153,54 @@ namespace MintaProjekt.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred while adding a department leader in DepartmentDataService - AddDepartmentLeaderAsync.");
+                throw;
+            }
+
+        }
+
+        // Delete department leader
+        public async Task DeleteDepartmentLeaderAsync(int departmentID, int leaderID)
+        {
+            _logger.LogInformation("Starting DeleteDepartmentLeaderAsync");
+
+            try
+            {
+                // Create SQL Connection
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                // Create SQL Command
+                string commandText = "EXEC sp_delete_department_leader @EmployeeID, @DepartmentID, @EndDate";
+                using SqlCommand command = new(commandText, connection);
+                command.Parameters.AddWithValue("@EmployeeID", leaderID);
+                command.Parameters.AddWithValue("@DepartmentID", departmentID);
+                command.Parameters.AddWithValue("@EndDate", DateTime.Now);
+
+                // Execute
+                _logger.LogInformation("Executing sp_delete_department_leader stored procedure.");
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+
+                // Validate the result
+                if (rowsAffected == 0)
+                {
+                    _logger.LogWarning("No rows were affected when deleting the leader. Leader data: {EmployeeID}", leaderID);
+                    throw new NoRowsAffectedException("No employee found with the provided ID for leader deletion.");
+                }
+                _logger.LogInformation("Delete department leader succeded.");
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Exception occurred in DepartmentDataService - DeleteDepartmentLeaderAsync method.");
+                throw;
+            }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in DepartmentDataService - DeleteDepartmentLeaderAsync method");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred while deleting a department leader in DepartmentDataService - DeleteDepartmentLeaderAsync.");
                 throw;
             }
 

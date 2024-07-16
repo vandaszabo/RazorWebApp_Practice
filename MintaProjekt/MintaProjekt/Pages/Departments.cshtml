@@ -1,8 +1,5 @@
 ﻿@page
 @model MintaProjekt.Pages.DepartmentsModel
-@{
-}
-
 
 <h1>Departments</h1>
 
@@ -13,14 +10,14 @@
             <th>Department Name</th>
             <th>Leaders</th>
             <th>Select new leader</th>
-            <th>Submit</th>
+            <th>Remove existing leader</th>
         </tr>
-
     </thead>
     <tbody>
-        @if(Model.Departments != null){
-
-            @foreach(var department in Model.Departments){
+        @if (Model.Departments != null)
+        {
+            @foreach (var department in Model.Departments)
+            {
                 <tr>
                     <td>@department.DepartmentID</td>
                     <td>@department.DepartmentName</td>
@@ -32,18 +29,26 @@
                         }
                     </td>
                     <td>
-                         <form method="post">
+                        <form method="post">
                             <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
                             <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FullName"))">
                                 <option value="" disabled selected>Select an option</option>
                             </select>
-                        <td>
                             <button type="submit">Add Leader</button>
-                        </td>
+                            <span asp-validation-for="NewLeaderID" class="text-danger"></span>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post">
+                            <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
+                            <select asp-for="LeaderIDToDelete" asp-items="@(new SelectList(department.Leaders, "EmployeeID", "FullName"))">
+                                <option value="" disabled selected>Select an option</option>
+                            </select>
+                            <button type="submit" class="btn btn-danger">Remove</button>
+                            <span asp-validation-for="LeaderIDToDelete" class="text-danger"></span>
                         </form>
                     </td>
                 </tr>
-
             }
         }
     </tbody>

@@ -13,11 +13,15 @@ namespace MintaProjekt.Pages
 
         [BindProperty]
         public int NewLeaderID { get; set; }
-        [BindProperty] 
+
+        [BindProperty]
+        public int LeaderIDToDelete { get; set; }
+
+        [BindProperty]
         public int DepartmentID { get; set; }
 
 
-        public DepartmentsModel(ILogger<DepartmentDataService> logger , IDepartmentDataService dataService)
+        public DepartmentsModel(ILogger<DepartmentDataService> logger, IDepartmentDataService dataService)
         {
             _logger = logger;
             _dataService = dataService;
@@ -39,19 +43,24 @@ namespace MintaProjekt.Pages
         }
 
 
-        // Update Department leader
+        // Manage Department leaders
         public async Task<IActionResult> OnPostAsync()
         {
-            if (NewLeaderID <= 0)
-            {
-                _logger.LogError("Invalid employee ID.");
-                ModelState.AddModelError(string.Empty, "Please enter a valid employee ID.");
-                return await OnGetAsync(); // Reload departments and return page
-            }
-
             try
             {
-                await _dataService.AddDepartmentLeaderAsync(DepartmentID, NewLeaderID);
+                if (NewLeaderID != 0)
+                {
+                    _logger.LogDebug("New Leader: {ID}", NewLeaderID);
+                    _logger.LogInformation("Try to add new leader.");
+                    await _dataService.AddDepartmentLeaderAsync(DepartmentID, NewLeaderID);
+                }
+                else if (LeaderIDToDelete != 0)
+                {
+                    _logger.LogDebug("Leader to delete: {ID}", LeaderIDToDelete);
+                    _logger.LogInformation("Try to delete existing leader.");
+                    await _dataService.DeleteDepartmentLeaderAsync(DepartmentID, LeaderIDToDelete);
+                }
+
                 return await OnGetAsync();
             }
             catch (Exception ex)
@@ -60,6 +69,8 @@ namespace MintaProjekt.Pages
                 ModelState.AddModelError(string.Empty, "An error occurred while updating the department leader.");
                 return RedirectToPage("/Error");
             }
+
+
         }
     }
 }
