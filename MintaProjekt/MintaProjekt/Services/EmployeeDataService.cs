@@ -62,14 +62,14 @@ namespace MintaProjekt.Services
                     return employees;
 
                 }
-                catch (NoRowsAffectedException ex)
-                {
-                    _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - GetEmployeesAsync method.");
-                    throw;
-                }
                 catch (SqlException ex)
                 {
                     _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - GetEmployeesAsync method.");
+                    throw;
+                }
+                catch (NoRowsAffectedException ex)
+                {
+                    _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - GetEmployeesAsync method.");
                     throw;
                 }
                 catch (Exception ex)
@@ -211,6 +211,11 @@ namespace MintaProjekt.Services
                 _logger.LogError(ex, "SQL Exception occurred while accessing SQL Server in EmployeeDataService - AddEmployeeAsync method.");
                 throw;
             }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - AddEmployeeAsync method.");
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred while adding an employee.");
@@ -269,14 +274,14 @@ namespace MintaProjekt.Services
                 _logger.LogError(ex, "Invalid Employee object provided for update.");
                 throw;
             }
-            catch (NoRowsAffectedException ex)
-            {
-                _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - UpdateEmployeeAsync method. Employee update failed.");
-                throw;
-            }
             catch (SqlException ex)
             {
                 _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - UpdateEmployeeAsync method.");
+                throw;
+            }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - UpdateEmployeeAsync method. Employee update failed.");
                 throw;
             }
             catch (Exception ex)
@@ -327,14 +332,14 @@ namespace MintaProjekt.Services
 
                 _logger.LogInformation("Employee deleted successfully. Rows affected: {RowsAffected}", rowsAffected);
             }
-            catch (NoRowsAffectedException ex)
-            {
-                _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - DeleteEmployeeAsync method. Employee deletion failed.");
-                throw;
-            }
             catch (SqlException ex)
             {
                 _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - DeleteEmployeeAsync method.");
+                throw;
+            }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - DeleteEmployeeAsync method. Employee deletion failed.");
                 throw;
             }
             catch (Exception ex)

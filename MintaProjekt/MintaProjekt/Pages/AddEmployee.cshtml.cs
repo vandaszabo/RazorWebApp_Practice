@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
 using MintaProjekt.Pages.Base;
 using MintaProjekt.Services;
+using System.Data.SqlClient;
 
 namespace MintaProjekt.Pages
 {
@@ -52,9 +54,23 @@ namespace MintaProjekt.Pages
                 _logger.LogInformation("New Employee added: {Employee}", Employee.ToString());
                 return RedirectToPage("/Employees");
             }
-            catch (Exception ex)
+            catch (ArgumentException)
             {
-                _logger.LogError(ex, "Exception occurred in AddEmployeeModel.");
+                ModelState.AddModelError(string.Empty, "Cannot create employee with given parameters.");
+                return Page();
+            }
+            catch (SqlException)
+            {
+                ModelState.AddModelError(string.Empty, "Database error occurred while adding the employee.");
+                return Page();
+            }
+            catch (NoRowsAffectedException)
+            {
+                ModelState.AddModelError(string.Empty, "Employee creation failed.");
+                return Page();
+            }
+            catch (Exception)
+            {
                 ModelState.AddModelError(string.Empty, "An error occurred while adding an employee.");
                 return Page();
             }

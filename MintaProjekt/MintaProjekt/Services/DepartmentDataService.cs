@@ -86,14 +86,14 @@ namespace MintaProjekt.Services
                 return departments.Values;
 
             }
-            catch (NoRowsAffectedException ex)
-            {
-                _logger.LogError(ex, "NoRowsAffectedException occurred in DepartmentDataService - GetDepartmentsWithEmployeesAsync method.");
-                throw;
-            }
             catch (SqlException ex)
             {
                 _logger.LogError(ex, "SQL Exception occurred in DepartmentDataService - GetDepartmentsWithEmployeesAsync method.");
+                throw;
+            }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in DepartmentDataService - GetDepartmentsWithEmployeesAsync method.");
                 throw;
             }
             catch (Exception ex)
@@ -133,14 +133,14 @@ namespace MintaProjekt.Services
                     throw new NoRowsAffectedException("No employee found with the provided ID for leader create.");
                 }
             }
-            catch (NoRowsAffectedException ex)
-            {
-                _logger.LogError(ex, "NoRowsAffectedException occurred in DepartmentDataService - AddDepartmentLeaderAsync method");
-                throw;
-            }
             catch (SqlException ex)
             {
                 _logger.LogError(ex, "SQL Exception occurred in DepartmentDataService - AddDepartmentLeaderAsync method.");
+                throw;
+            }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in DepartmentDataService - AddDepartmentLeaderAsync method");
                 throw;
             }
             catch (Exception ex)

@@ -47,14 +47,14 @@ namespace MintaProjekt.Pages
                 _logger.LogInformation("Successfully deleted employee with ID: {EmployeeID}", EmployeeID);
                 return RedirectToPage("/Employees");
             }
-            catch (NoRowsAffectedException)
-            {
-                ModelState.AddModelError(string.Empty, "No employee found with the given ID.");
-                return Page();
-            }
             catch (SqlException)
             {
                 ModelState.AddModelError(string.Empty, "An error occurred while deleting the employee.");
+                return Page();
+            }
+            catch (NoRowsAffectedException)
+            {
+                ModelState.AddModelError(string.Empty, "No employee found with the given ID.");
                 return Page();
             }
             catch (Exception)
