@@ -17,7 +17,6 @@ namespace MintaProjekt.Services
         }
 
 
-        // Get all Department with related employees
         public async Task<IEnumerable<Department>> GetDepartmentsWithEmployeesAsync()
         {
             _logger.LogInformation("Starting GetDepartmentsWithEmployeesAsync");
@@ -29,24 +28,31 @@ namespace MintaProjekt.Services
                 await connection.OpenAsync();
 
                 // Create SQL Command
-                string commandText = "EXEC sp_get_departments_with_employees";
+                string commandText = "EXEC sp_get_departments_with_employees_and_leaders";
                 using var command = new SqlCommand(commandText, connection);
 
                 // Execute
                 _logger.LogInformation("Executing sp_get_departments_with_employees_and_leaders stored procedure.");
                 using var reader = await command.ExecuteReaderAsync();
 
+                // Log the schema information
+                _logger.LogDebug("Columns returned by the stored procedure:");
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    _logger.LogDebug($"Column {i}: {reader.GetName(i)} ({reader.GetFieldType(i)})");
+                }
+
                 var departments = new Dictionary<int, Department>();
                 while (await reader.ReadAsync())
                 {
-                    int departmentID = reader.GetInt32(0);
-                    DepartmentName departmentName = Enum.Parse<DepartmentName>(reader.GetString(1));
-                    int employeeID = reader.GetInt32(2);
-                    string firstName = reader.GetString(3);
-                    string lastName = reader.GetString(4);
-                    string jobTitle = reader.GetString(5);
-                    DateTime? startDate = reader.IsDBNull(6) ? null : reader.GetDateTime(6);  // leadership start date
-                    DateTime? endDate = reader.IsDBNull(7) ? null : reader.GetDateTime(7);    // leadership end date
+                    int departmentID = reader.GetInt32(0); // department_id
+                    DepartmentName departmentName = Enum.Parse<DepartmentName>(reader.GetString(1)); // department_name
+                    int? employeeID = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2); // employee_id
+                    string? firstName = reader.IsDBNull(3) ? null : reader.GetString(3); // first_name
+                    string? lastName = reader.IsDBNull(4) ? null : reader.GetString(4); // last_name
+                    string? jobTitle = reader.IsDBNull(5) ? null : reader.GetString(5); // job_title
+                    DateTime? startDate = reader.IsDBNull(6) ? null : reader.GetDateTime(6);  // (leadership) start_date
+                    DateTime? endDate = reader.IsDBNull(7) ? null : reader.GetDateTime(7);    // (leadership) end_date
 
                     // Create department if not exist in dictionary
                     if (!departments.TryGetValue(departmentID, out var department))
@@ -55,23 +61,23 @@ namespace MintaProjekt.Services
                         departments.Add(departmentID, department);
                     }
 
-                    // Add Employees and Leaders to Department
-                    department.Employees.Add(new Employee
+                    // Add Employees and Leaders to Department if they exist
+                    if (employeeID.HasValue)
                     {
-                        EmployeeID = employeeID,
-                        FirstName = firstName,
-                        LastName = lastName,
-                        JobTitle = jobTitle
-                    });
-
-                    if (startDate.HasValue && (!endDate.HasValue || endDate >= DateTime.Today))
-                    {
-                        department.Leaders.Add(new Employee
+                        var employee = new Employee
                         {
-                            EmployeeID = employeeID,
+                            EmployeeID = employeeID.Value,
                             FirstName = firstName,
-                            LastName = lastName
-                        });
+                            LastName = lastName,
+                            JobTitle = jobTitle
+                        };
+
+                        department.Employees.Add(employee);
+
+                        if (startDate.HasValue && (!endDate.HasValue || endDate >= DateTime.Today))
+                        {
+                            department.Leaders.Add(employee);
+                        }
                     }
                 }
 
@@ -100,8 +106,9 @@ namespace MintaProjekt.Services
             {
                 _logger.LogError(ex, "Exception occurred in DepartmentDataService - GetDepartmentsWithEmployeesAsync method.");
                 throw;
-            }   
+            }
         }
+
 
 
         // Create department leader (Create new leader entity)
