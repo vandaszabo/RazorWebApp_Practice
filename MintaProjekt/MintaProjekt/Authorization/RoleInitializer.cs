@@ -90,7 +90,7 @@ namespace MintaProjekt.Authorization
             try
             {
                 await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Select"));
-                await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Add"));
+                await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Insert"));
                 await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Update"));
                 await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Delete"));
             }
@@ -121,7 +121,7 @@ namespace MintaProjekt.Authorization
             try
             {
                 await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Select"));
-                await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Add"));
+                await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Insert"));
                 await AddClaimIfNotExists(roleManager, role, new Claim("Permission", "Update"));
             }
             catch (Exception ex)

@@ -10,7 +10,7 @@ using System.Data.SqlClient;
 
 namespace MintaProjekt.Pages
 {
-    [Authorize(Policy = "CanAddData")]
+    [Authorize(Policy = "CanInsertData")]
     public class AddEmployeeModel : BasePageModel
     {
         private readonly ILogger<AddEmployeeModel> _logger;

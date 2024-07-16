@@ -112,7 +112,7 @@ namespace MintaProjekt.Services
 
 
         // Create department leader (Create new leader entity)
-        public async Task AddDepartmentLeaderAsync(int departmentID, int newLeaderID)
+        public async Task AddDepartmentLeaderAsync(int departmentID, int newLeaderID)  // Leadership start date should changed to DateTime avoiding primary key duplication when updating in same day
         {
             _logger.LogInformation("Starting AddDepartmentLeaderAsync");
 

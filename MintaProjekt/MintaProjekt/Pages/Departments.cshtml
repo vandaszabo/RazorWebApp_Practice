@@ -9,8 +9,11 @@
             <th>Department ID</th>
             <th>Department Name</th>
             <th>Leaders</th>
-            <th>Select new leader</th>
-            <th>Remove existing leader</th>
+             @if (User.HasClaim("Permission", "Add") || User.HasClaim("Permission", "Update") || User.HasClaim("Permission", "Delete"))
+            {
+                <th>Select new leader</th>
+                <th>Remove existing leader</th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -28,26 +31,29 @@
                             <br />
                         }
                     </td>
-                    <td>
-                        <form method="post">
-                            <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
-                            <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FullName"))">
-                                <option value="" disabled selected>Select an option</option>
-                            </select>
-                            <button type="submit">Add Leader</button>
-                            <span asp-validation-for="NewLeaderID" class="text-danger"></span>
-                        </form>
-                    </td>
-                    <td>
-                        <form method="post">
-                            <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
-                            <select asp-for="LeaderIDToDelete" asp-items="@(new SelectList(department.Leaders, "EmployeeID", "FullName"))">
-                                <option value="" disabled selected>Select an option</option>
-                            </select>
-                            <button type="submit" class="btn btn-danger">Remove</button>
-                            <span asp-validation-for="LeaderIDToDelete" class="text-danger"></span>
-                        </form>
-                    </td>
+                    @if (User.HasClaim("Permission", "Add") || User.HasClaim("Permission", "Update") || User.HasClaim("Permission", "Delete"))
+                    {
+                        <td>
+                            <form method="post">
+                                <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
+                                <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FullName"))">
+                                    <option value="" disabled selected>Select an option</option>
+                                </select>
+                                <button type="submit">Add Leader</button>
+                                <span asp-validation-for="NewLeaderID" class="text-danger"></span>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post">
+                                <input type="hidden" asp-for="DepartmentID" value="@department.DepartmentID" />
+                                <select asp-for="LeaderIDToDelete" asp-items="@(new SelectList(department.Leaders, "EmployeeID", "FullName"))">
+                                    <option value="" disabled selected>Select an option</option>
+                                </select>
+                                <button type="submit" class="btn btn-danger">Remove</button>
+                                <span asp-validation-for="LeaderIDToDelete" class="text-danger"></span>
+                            </form>
+                        </td>
+                    }
                 </tr>
             }
         }

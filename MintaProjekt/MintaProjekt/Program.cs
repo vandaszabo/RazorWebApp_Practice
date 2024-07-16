@@ -130,7 +130,7 @@ namespace MintaProjekt
         {
             builder.Services.AddAuthorizationBuilder()
                 .AddPolicy("CanSelectData", policy => policy.RequireClaim("Permission", "Select"))
-                .AddPolicy("CanAddData", policy => policy.RequireClaim("Permission", "Add"))
+                .AddPolicy("CanInsertData", policy => policy.RequireClaim("Permission", "Insert"))
                 .AddPolicy("CanUpdateData", policy => policy.RequireClaim("Permission", "Update"))
                 .AddPolicy("CanDeleteData", policy => policy.RequireClaim("Permission", "Delete"));
         }
