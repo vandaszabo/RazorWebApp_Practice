@@ -122,6 +122,7 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
                     }
 
                     var userId = await _userManager.GetUserIdAsync(user);
+
                     _logger.LogInformation($"User ID: {userId}");
                     //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -143,6 +144,7 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
                     //    await _signInManager.SignInAsync(user, isPersistent: false);
                     //    return LocalRedirect(returnUrl);
                     //}
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }

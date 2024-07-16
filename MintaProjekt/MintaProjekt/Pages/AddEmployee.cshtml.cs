@@ -1,26 +1,25 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
-using MintaProjekt.Pages.Base;
 using MintaProjekt.Services;
 using System.Data.SqlClient;
+using System.Security.Claims;
 
 namespace MintaProjekt.Pages
 {
     [Authorize(Policy = "CanInsertData")]
-    public class AddEmployeeModel : BasePageModel
+    public class AddEmployeeModel : PageModel
     {
         private readonly ILogger<AddEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataService;
-        
+        private readonly string _userID;
 
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor) : base(userManager)
+        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService)
         {
             _logger = logger;
             _dataService = dataService;
@@ -28,15 +27,16 @@ namespace MintaProjekt.Pages
             {
                 HireDate = DateOnly.FromDateTime(DateTime.Now)
             };
-            _logger.LogInformation(httpContextAccessor.HttpContext.User.ToString());
         }
 
         // Create Employee
         public async Task<IActionResult> OnPostAsync()
         {
+            var currentUserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             _logger.LogInformation("{CountryCode}, {AreaCode}, {Phonenumber}", Employee.PhoneNumber.CountryCode, Employee.PhoneNumber.SelectedAreaCode, Employee.PhoneNumber.LocalPhoneNumber);
 
-            if(UserId == null)
+            if(currentUserID == null)
             {
                 _logger.LogError("UserId is null in AddEmployeeModel");
                 ModelState.AddModelError(string.Empty, "Cannot add employee with invalid userID.");
@@ -50,7 +50,7 @@ namespace MintaProjekt.Pages
             }
             try
             {
-                await _dataService.AddEmployeeAsync(Employee, "userId");
+                await _dataService.AddEmployeeAsync(Employee, currentUserID);
                 _logger.LogInformation("New Employee added: {Employee}", Employee.ToString());
                 return RedirectToPage("/Employees");
             }

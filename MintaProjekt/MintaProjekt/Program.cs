@@ -35,6 +35,7 @@ namespace MintaProjekt
             AddControllers(builder);
             AddScopedServices(builder);
             AddCoreAdmin(builder);
+            builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
 

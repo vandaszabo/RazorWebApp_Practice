@@ -1,17 +1,18 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
-using MintaProjekt.Pages.Base;
 using MintaProjekt.Services;
 using System.Data.SqlClient;
+using System.Security.Claims;
 
 namespace MintaProjekt.Pages
 {
     [Authorize(Policy = "CanUpdateData")]
-    public class UpdateEmployeeModel : BasePageModel
+    public class UpdateEmployeeModel : PageModel
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataService;
@@ -23,7 +24,7 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public int EmployeeID { get; set; }
 
-        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager) : base(userManager)
+        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager)
         {
             _logger = logger;
             _dataService = dataService;
@@ -78,7 +79,9 @@ namespace MintaProjekt.Pages
         // Update Employee information
         public async Task<IActionResult> OnPostUpdateAsync()
         {
-            if (UserId == null)
+            var currentUserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (currentUserID == null)
             {
                 _logger.LogError("UserId is null in UpdateEmployeeModel");
                 ModelState.AddModelError(string.Empty, "Cannot update with invalid userID.");
@@ -94,7 +97,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataService.UpdateEmployeeAsync(SelectedEmployee, UserId);
+                await _dataService.UpdateEmployeeAsync(SelectedEmployee, currentUserID);
                 _logger.LogInformation("Successful employee update for {ID}", SelectedEmployee.EmployeeID);
                 return RedirectToPage("/Employees");
             }

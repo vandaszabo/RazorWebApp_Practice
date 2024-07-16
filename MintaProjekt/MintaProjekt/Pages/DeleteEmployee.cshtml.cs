@@ -1,20 +1,20 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Exeptions;
-using MintaProjekt.Pages.Base;
 using MintaProjekt.Services;
 using System.Data.SqlClient;
+using System.Security.Claims;
 
 namespace MintaProjekt.Pages
 {
     [Authorize(Policy = "CanDeleteData")]
-    public class DeleteEmployeeModel : BasePageModel
+    public class DeleteEmployeeModel : PageModel
     {
         private readonly ILogger<DeleteEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataService;
 
-        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager) : base(userManager)
+        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, IEmployeeDataService dataService)
         {
             _logger = logger;
             _dataService = dataService;
@@ -27,7 +27,8 @@ namespace MintaProjekt.Pages
         // Delete Employee
         public async Task<IActionResult> OnPostAsync()
         {
-            if (UserId == null)
+            var currentUserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserID == null)
             {
                 _logger.LogError("UserId is null in DeleteEmployeeModel");
                 ModelState.AddModelError(string.Empty, "Cannot delete employee with invalid userID.");
@@ -43,7 +44,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataService.DeleteEmployeeAsync(EmployeeID, UserId);
+                await _dataService.DeleteEmployeeAsync(EmployeeID, currentUserID);
                 _logger.LogInformation("Successfully deleted employee with ID: {EmployeeID}", EmployeeID);
                 return RedirectToPage("/Employees");
             }

@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace MintaProjekt.Areas.Identity.Pages.Account
 {
@@ -115,9 +117,37 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
+                    // Retrieve userID 
+                    var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+                    var userId = user.Id;
+
+                    // Get the claims for the authenticated user
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, userId)
+                        // Add more claims as needed
+                    };
+
+                    // ClaimsIdentity is fundamental in Authentication process, to maintain the user's authenticated state across requests
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        // Configure the properties for the cookie
+                        IsPersistent = Input.RememberMe,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30) // Adjust expiration as needed
+                    };
+
+                    // Sign in the user with the claims and authentication properties
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    _logger.LogInformation("User logged in. {UserID}: ", userId);
                     return LocalRedirect(returnUrl);
                 }
+
                 if (result.RequiresTwoFactor)
                 {
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
