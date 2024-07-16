@@ -32,19 +32,8 @@ namespace MintaProjekt
             AddAuthentication(builder);
             AddAuthorization(builder);
             AddIdentity(builder);
-
-            // Add Controllers With Authorization filter
-            //Require all users to be authenticated.
-            builder.Services.AddControllers(config =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                                 .RequireAuthenticatedUser()
-                                 .Build();
-                config.Filters.Add(new AuthorizeFilter(policy));
-            });
-
-            builder.Services.AddScoped<IEmployeeDataService, EmployeeDataService>();
-            builder.Services.AddScoped<IDepartmentDataService, DepartmentDataService>();
+            AddControllers(builder);
+            AddScopedServices(builder);
 
             var app = builder.Build();
 
@@ -86,11 +75,31 @@ namespace MintaProjekt
             }
         }
 
+        // Add Controllers
+        private static void AddControllers(WebApplicationBuilder builder)
+        {
+            // Add Controllers With Authorization filter
+            //Require all users to be authenticated.
+            builder.Services.AddControllers(config =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                                 .RequireAuthenticatedUser()
+                                 .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+        }
 
         // Add Serilog
         private static void AddSerilog(WebApplicationBuilder builder)
         {
             builder.Host.UseSerilog();
+        }
+
+        // Add Scoped Services
+        private static void AddScopedServices(WebApplicationBuilder builder)
+        {
+            builder.Services.AddScoped<IEmployeeDataService, EmployeeDataService>();
+            builder.Services.AddScoped<IDepartmentDataService, DepartmentDataService>();
         }
 
         // Add DbContext

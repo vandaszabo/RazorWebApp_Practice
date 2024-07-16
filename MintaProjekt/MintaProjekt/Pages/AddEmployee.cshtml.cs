@@ -13,11 +13,12 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<AddEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataService;
+        
 
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager) : base(userManager)
+        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor) : base(userManager)
         {
             _logger = logger;
             _dataService = dataService;
@@ -25,6 +26,7 @@ namespace MintaProjekt.Pages
             {
                 HireDate = DateOnly.FromDateTime(DateTime.Now)
             };
+            _logger.LogInformation(httpContextAccessor.HttpContext.User.ToString());
         }
 
         // Create Employee
@@ -46,7 +48,7 @@ namespace MintaProjekt.Pages
             }
             try
             {
-                await _dataService.AddEmployeeAsync(Employee, UserId);
+                await _dataService.AddEmployeeAsync(Employee, "userId");
                 _logger.LogInformation("New Employee added: {Employee}", Employee.ToString());
                 return RedirectToPage("/Employees");
             }
