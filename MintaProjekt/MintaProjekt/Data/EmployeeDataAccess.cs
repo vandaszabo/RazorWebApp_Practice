@@ -4,15 +4,16 @@ using System.Data.SqlTypes;
 using MintaProjekt.Models;
 using MintaProjekt.Exeptions;
 using MintaProjekt.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MintaProjekt.Services
 {
-    public class EmployeeDataService : IEmployeeDataService
+    public class EmployeeDataAccess : IEmployeeDataAccess
     {
         private readonly string? _connectionString;
-        private readonly ILogger<IEmployeeDataService> _logger;
+        private readonly ILogger<IEmployeeDataAccess> _logger;
 
-        public EmployeeDataService(ILogger<IEmployeeDataService> logger, IConfiguration configuration)
+        public EmployeeDataAccess(ILogger<IEmployeeDataAccess> logger, IConfiguration configuration)
         {
             _logger = logger;
             _connectionString = configuration.GetConnectionString("MSSQLConnection");
@@ -196,7 +197,7 @@ namespace MintaProjekt.Services
                 if (rowsAffected == 0)
                 {
                     _logger.LogWarning("No rows were affected when adding the employee. Employee data: {Employee}", employee.ToString());
-                    throw new NoRowsAffectedException("Failed to add the employee to the database.");
+                    throw new NoRowsAffectedException("Failed to add the employee to the database."); // Warning nem error
                 }
 
                 _logger.LogInformation("Employee added successfully. Rows affected: {RowsAffected}", rowsAffected);
@@ -204,7 +205,7 @@ namespace MintaProjekt.Services
             catch (ArgumentException ex)
             {
                 _logger.LogError(ex, "ArgumentExeption occured in EmployeeDataService - AddEmployeeAsync method.");
-                throw;
+                throw ; // UI Exeption (többnyelvű)
             }
             catch (SqlException ex)
             {

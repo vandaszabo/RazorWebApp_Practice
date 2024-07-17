@@ -12,13 +12,13 @@ namespace MintaProjekt.Pages
     public class EmployeesModel : PageModel
     {
         private readonly ILogger<EmployeesModel> _logger;
-        private readonly IEmployeeDataService _dataService;
+        private readonly IEmployeeDataAccess _dataAccess;
         public IEnumerable<Employee>? Employees { get; private set; }
 
-        public EmployeesModel(ILogger<EmployeesModel> logger, IEmployeeDataService dataService)
+        public EmployeesModel(ILogger<EmployeesModel> logger, IEmployeeDataAccess dataService)
         {
             _logger = logger;
-            _dataService = dataService;
+            _dataAccess = dataService;
         }
 
         // Get all Employees from DB
@@ -26,7 +26,7 @@ namespace MintaProjekt.Pages
         {
             try
             {
-                Employees = await _dataService.GetEmployeesAsync();
+                Employees = await _dataAccess.GetEmployeesAsync();
                 return Page();
             }
             catch (SqlException)

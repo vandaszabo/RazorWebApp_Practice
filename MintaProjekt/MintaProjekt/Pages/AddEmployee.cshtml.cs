@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
 using MintaProjekt.Services;
-using System.Data.SqlClient;
-using System.Security.Claims;
+using MintaProjekt.Utilities;
 
 namespace MintaProjekt.Pages
 {
@@ -13,16 +11,15 @@ namespace MintaProjekt.Pages
     public class AddEmployeeModel : PageModel
     {
         private readonly ILogger<AddEmployeeModel> _logger;
-        private readonly IEmployeeDataService _dataService;
-        private readonly string _userID;
+        private readonly IEmployeeDataAccess _dataAccess;
 
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService)
+        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataAccess dataService)
         {
             _logger = logger;
-            _dataService = dataService;
+            _dataAccess = dataService;
             Employee = new Employee
             {
                 HireDate = DateOnly.FromDateTime(DateTime.Now)
@@ -32,42 +29,25 @@ namespace MintaProjekt.Pages
         // Create Employee
         public async Task<IActionResult> OnPostAsync()
         {
-            var currentUserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            _logger.LogInformation("{CountryCode}, {AreaCode}, {Phonenumber}", Employee.PhoneNumber.CountryCode, Employee.PhoneNumber.SelectedAreaCode, Employee.PhoneNumber.LocalPhoneNumber);
-
-            if(currentUserID == null)
-            {
-                _logger.LogError("UserId is null in AddEmployeeModel");
-                ModelState.AddModelError(string.Empty, "Cannot add employee with invalid userID.");
-                return Page();
-            }
+            // Validate Employee object
             if (Employee.HasInvalidProperties())
             {
-                _logger.LogError("Employee object is not correctly set in AddEmployeeModel");
+                _logger.LogWarning("Employee object is not correctly set in AddEmployeeModel");
                 ModelState.AddModelError(string.Empty, "Please provide all information.");
                 return Page();
             }
+
+            // Add Employee
             try
             {
-                await _dataService.AddEmployeeAsync(Employee, currentUserID);
+                // Get Current User's ID
+                _logger.LogDebug("Try to access current User ID.");
+                string userID = UserHelper.GetCurrentUserID(User);
+
+                // Invoke AddEmployee from EmployeeDataService
+                await _dataAccess.AddEmployeeAsync(Employee, userID);
                 _logger.LogInformation("New Employee added: {Employee}", Employee.ToString());
                 return RedirectToPage("/Employees");
-            }
-            catch (ArgumentException)
-            {
-                ModelState.AddModelError(string.Empty, "Cannot create employee with given parameters.");
-                return Page();
-            }
-            catch (SqlException)
-            {
-                ModelState.AddModelError(string.Empty, "Database error occurred while adding the employee.");
-                return Page();
-            }
-            catch (NoRowsAffectedException)
-            {
-                ModelState.AddModelError(string.Empty, "Employee creation failed.");
-                return Page();
             }
             catch (Exception)
             {

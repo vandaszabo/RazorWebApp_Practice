@@ -15,7 +15,7 @@ namespace MintaProjekt.Pages
     public class UpdateEmployeeModel : PageModel
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
-        private readonly IEmployeeDataService _dataService;
+        private readonly IEmployeeDataAccess _dataAccess;
         public SelectList? EmployeeList { get; set; }
 
         [BindProperty]
@@ -24,16 +24,16 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public int EmployeeID { get; set; }
 
-        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataService dataService, UserManager<IdentityUser> userManager)
+        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataAccess dataService, UserManager<IdentityUser> userManager)
         {
             _logger = logger;
-            _dataService = dataService;
+            _dataAccess = dataService;
         }
 
         // Retrieve all employees to choose from
         public async Task<IActionResult> OnGet()
         {
-            var employees = await _dataService.GetEmployeesAsync();
+            var employees = await _dataAccess.GetEmployeesAsync();
 
             if (employees == null || !employees.Any())
             {
@@ -56,7 +56,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                SelectedEmployee = await _dataService.GetEmployeeByIDAsync(EmployeeID);
+                SelectedEmployee = await _dataAccess.GetEmployeeByIDAsync(EmployeeID);
 
                 if (SelectedEmployee == null)
                 {
@@ -97,7 +97,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataService.UpdateEmployeeAsync(SelectedEmployee, currentUserID);
+                await _dataAccess.UpdateEmployeeAsync(SelectedEmployee, currentUserID);
                 _logger.LogInformation("Successful employee update for {ID}", SelectedEmployee.EmployeeID);
                 return RedirectToPage("/Employees");
             }

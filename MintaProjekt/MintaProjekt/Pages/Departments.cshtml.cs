@@ -8,8 +8,8 @@ namespace MintaProjekt.Pages
 {
     public class DepartmentsModel : PageModel
     {
-        private readonly IDepartmentDataService _dataService;
-        private readonly ILogger<DepartmentDataService> _logger;
+        private readonly IDepartmentDataAccess _dataAccess;
+        private readonly ILogger<DepartmentDataAccess> _logger;
         public IEnumerable<Department>? Departments { get; private set; }
 
         [BindProperty]
@@ -22,10 +22,10 @@ namespace MintaProjekt.Pages
         public int DepartmentID { get; set; }
 
 
-        public DepartmentsModel(ILogger<DepartmentDataService> logger, IDepartmentDataService dataService)
+        public DepartmentsModel(ILogger<DepartmentDataAccess> logger, IDepartmentDataAccess dataService)
         {
             _logger = logger;
-            _dataService = dataService;
+            _dataAccess = dataService;
         }
 
         // Get all Departments from DB
@@ -33,7 +33,7 @@ namespace MintaProjekt.Pages
         {
             try
             {
-                Departments = await _dataService.GetDepartmentsWithEmployeesAsync();
+                Departments = await _dataAccess.GetDepartmentsWithEmployeesAsync();
                 return Page();
             }
             catch (Exception ex)
@@ -53,13 +53,13 @@ namespace MintaProjekt.Pages
                 {
                     _logger.LogDebug("New Leader: {ID}", NewLeaderID);
                     _logger.LogInformation("Try to add new leader.");
-                    await _dataService.AddDepartmentLeaderAsync(DepartmentID, NewLeaderID);
+                    await _dataAccess.AddDepartmentLeaderAsync(DepartmentID, NewLeaderID);
                 }
                 else if (LeaderIDToDelete != 0)
                 {
                     _logger.LogDebug("Leader to delete: {ID}", LeaderIDToDelete);
                     _logger.LogInformation("Try to delete existing leader.");
-                    await _dataService.DeleteDepartmentLeaderAsync(DepartmentID, LeaderIDToDelete);
+                    await _dataAccess.DeleteDepartmentLeaderAsync(DepartmentID, LeaderIDToDelete);
                 }
 
                 return await OnGetAsync();

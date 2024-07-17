@@ -1,4 +1,5 @@
 ﻿@page
+@using MintaProjekt.Enums
 @model MintaProjekt.Pages.UpdateEmployeeModel
 @{
 }
@@ -62,9 +63,9 @@
                 <td>
                     <label asp-for="SelectedEmployee.DepartmentName"></label>
                     <select id="DepartmentName" asp-for="SelectedEmployee.DepartmentName" class="form-control">
-                        @foreach (var department in Enum.GetValues(typeof(Models.Department)))
+                        @foreach (var departmentName in Enum.GetValues(typeof(DepartmentName)))
                         {
-                            <option value="@department">@department</option>
+                            <option value="@departmentName">@departmentName</option>
                         }
                     </select>
                 </td>

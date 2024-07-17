@@ -12,12 +12,12 @@ namespace MintaProjekt.Pages
     public class DeleteEmployeeModel : PageModel
     {
         private readonly ILogger<DeleteEmployeeModel> _logger;
-        private readonly IEmployeeDataService _dataService;
+        private readonly IEmployeeDataAccess _dataAccess;
 
-        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, IEmployeeDataService dataService)
+        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, IEmployeeDataAccess dataService)
         {
             _logger = logger;
-            _dataService = dataService;
+            _dataAccess = dataService;
         }
 
         [BindProperty] 
@@ -44,7 +44,7 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataService.DeleteEmployeeAsync(EmployeeID, currentUserID);
+                await _dataAccess.DeleteEmployeeAsync(EmployeeID, currentUserID);
                 _logger.LogInformation("Successfully deleted employee with ID: {EmployeeID}", EmployeeID);
                 return RedirectToPage("/Employees");
             }

@@ -5,12 +5,12 @@ using System.Data.SqlClient;
 
 namespace MintaProjekt.Services
 {
-    public class DepartmentDataService : IDepartmentDataService
+    public class DepartmentDataAccess : IDepartmentDataAccess
     {
         private readonly string? _connectionString;
-        private readonly ILogger<IDepartmentDataService> _logger;
+        private readonly ILogger<IDepartmentDataAccess> _logger;
 
-        public DepartmentDataService(ILogger<IDepartmentDataService> logger, IConfiguration configuration)
+        public DepartmentDataAccess(ILogger<IDepartmentDataAccess> logger, IConfiguration configuration)
         {
             _logger = logger;
             _connectionString = configuration.GetConnectionString("MSSQLConnection");

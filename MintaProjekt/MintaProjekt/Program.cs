@@ -34,7 +34,6 @@ namespace MintaProjekt
             AddIdentity(builder);
             AddControllers(builder);
             AddScopedServices(builder);
-            AddCoreAdmin(builder);
             builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
@@ -57,8 +56,6 @@ namespace MintaProjekt
 
             app.UseAuthentication();
             app.UseAuthorization();
-
-            app.UseCoreAdminCustomUrl("/Administrator"); // Configure the admin URL
 
             app.MapRazorPages();
 
@@ -98,17 +95,11 @@ namespace MintaProjekt
             builder.Host.UseSerilog();
         }
 
-        // Add Core Admin
-        private static void AddCoreAdmin(WebApplicationBuilder builder)
-        {
-            builder.Services.AddCoreAdmin("Admin"); // When adding Core Admin, provide the list of Roles required to access the panel
-        }
-
         // Add Scoped Services
         private static void AddScopedServices(WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<IEmployeeDataService, EmployeeDataService>();
-            builder.Services.AddScoped<IDepartmentDataService, DepartmentDataService>();
+            builder.Services.AddScoped<IEmployeeDataAccess, EmployeeDataAccess>();
+            builder.Services.AddScoped<IDepartmentDataAccess, DepartmentDataAccess>();
         }
 
         // Add DbContext
