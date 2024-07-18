@@ -2,7 +2,7 @@
 
 namespace MintaProjekt.Services
 {
-    public interface IDepartmentDataAccess
+    public interface IDepartmentDataService
     {
         Task<IEnumerable<Department>> GetDepartmentsWithEmployeesAsync();
         Task AddDepartmentLeaderAsync(int departmentID, int newLeaderID);

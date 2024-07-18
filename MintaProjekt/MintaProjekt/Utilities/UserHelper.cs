@@ -5,6 +5,8 @@ namespace MintaProjekt.Utilities
 {
     public class UserHelper
     {
+        // TODO Change code for retrive userID from session
+
         private readonly UserManager<IdentityUser> _userManager;
         public UserHelper(UserManager<IdentityUser> userManager)
         {

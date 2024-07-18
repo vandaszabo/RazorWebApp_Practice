@@ -8,8 +8,8 @@ namespace MintaProjekt.Pages
 {
     public class DepartmentsModel : PageModel
     {
-        private readonly IDepartmentDataAccess _dataAccess;
-        private readonly ILogger<DepartmentDataAccess> _logger;
+        private readonly IDepartmentDataService _dataAccess;
+        private readonly ILogger<DepartmentDataService> _logger;
         public IEnumerable<Department>? Departments { get; private set; }
 
         [BindProperty]
@@ -22,7 +22,7 @@ namespace MintaProjekt.Pages
         public int DepartmentID { get; set; }
 
 
-        public DepartmentsModel(ILogger<DepartmentDataAccess> logger, IDepartmentDataAccess dataService)
+        public DepartmentsModel(ILogger<DepartmentDataService> logger, IDepartmentDataService dataService)
         {
             _logger = logger;
             _dataAccess = dataService;

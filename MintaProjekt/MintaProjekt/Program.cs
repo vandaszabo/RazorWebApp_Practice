@@ -36,12 +36,14 @@ namespace MintaProjekt
             AddAuthorization(builder);
             AddIdentity(builder);
 
-            // Add localization to pages
+            // Add Pages with localization
             builder.Services.AddRazorPages()
                        .AddViewLocalization()
                        .AddDataAnnotationsLocalization();
-
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            // Add Session
+            AddSession(builder);
 
             AddControllers(builder);
             AddScopedServices(builder);
@@ -76,6 +78,9 @@ namespace MintaProjekt
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            // Session Middleware
+            app.UseSession();
 
             app.UseRouting();
 
@@ -114,6 +119,16 @@ namespace MintaProjekt
             });
         }
 
+        // Add Session
+        private static void AddSession(WebApplicationBuilder builder)
+        {
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Munkamenet idõkorlát (idle = tétlen)
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+        }
         // Add Serilog
         private static void AddSerilog(WebApplicationBuilder builder)
         {
@@ -123,8 +138,8 @@ namespace MintaProjekt
         // Add Scoped Services
         private static void AddScopedServices(WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<IEmployeeDataAccess, EmployeeDataAccess>();
-            builder.Services.AddScoped<IDepartmentDataAccess, DepartmentDataAccess>();
+            builder.Services.AddScoped<IEmployeeDataService, EmployeeDataService>();
+            builder.Services.AddScoped<IDepartmentDataService, DepartmentDataService>();
             builder.Services.AddScoped<UserHelper>();
         }
 

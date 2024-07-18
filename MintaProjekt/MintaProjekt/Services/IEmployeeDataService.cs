@@ -2,7 +2,7 @@
 
 namespace MintaProjekt.Services
 {
-    public interface IEmployeeDataAccess
+    public interface IEmployeeDataService
     {
         Task<IEnumerable<Employee>> GetEmployeesAsync();
         Task<Employee> GetEmployeeByIDAsync(int employeeID);

@@ -119,30 +119,11 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
                 {
                     // Retrieve userID 
                     var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
-                    var userId = user.Id;
+                    var userId = user.Id; // TODO Add User object in session 
 
-                    //// Get the claims for the authenticated user
-                    //var claims = new List<Claim>
-                    //{
-                    //    new Claim(ClaimTypes.NameIdentifier, userId)
-                    //    // Add more claims as needed
-                    //};
+                    // Testing session set 
+                    HttpContext.Session.SetString("User", "Vanda");
 
-                    //// ClaimsIdentity is fundamental in Authentication process, to maintain the user's authenticated state across requests
-                    //var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    //var authProperties = new AuthenticationProperties
-                    //{
-                    //    // Configure the properties for the cookie
-                    //    IsPersistent = Input.RememberMe,
-                    //    ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30) // Adjust expiration as needed
-                    //};
-
-                    //// Sign in the user with the claims and authentication properties
-                    //await HttpContext.SignInAsync(
-                    //    CookieAuthenticationDefaults.AuthenticationScheme,
-                    //    new ClaimsPrincipal(claimsIdentity),
-                    //    authProperties);
 
                     _logger.LogInformation("User logged in. {UserID}: ", userId);
                     return LocalRedirect(returnUrl);

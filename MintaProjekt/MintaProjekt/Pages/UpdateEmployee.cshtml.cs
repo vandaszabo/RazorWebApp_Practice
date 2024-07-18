@@ -14,7 +14,7 @@ namespace MintaProjekt.Pages
     public class UpdateEmployeeModel : PageModel
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
-        private readonly IEmployeeDataAccess _dataAccess;
+        private readonly IEmployeeDataService _dataAccess;
         private readonly UserHelper _userHelper;
         public SelectList? EmployeeList { get; set; }
 
@@ -24,7 +24,7 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public int EmployeeID { get; set; }
 
-        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataAccess dataService, UserHelper userHelper)
+        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataService dataService, UserHelper userHelper)
         {
             _logger = logger;
             _dataAccess = dataService;

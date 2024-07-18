@@ -11,13 +11,13 @@ namespace MintaProjekt.Pages
     public class AddEmployeeModel : PageModel
     {
         private readonly ILogger<AddEmployeeModel> _logger;
-        private readonly IEmployeeDataAccess _dataAccess;
+        private readonly IEmployeeDataService _dataAccess;
         private readonly UserHelper _userHelper;
 
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataAccess dataService, UserHelper userHelper)
+        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService, UserHelper userHelper)
         {
             _logger = logger;
             _dataAccess = dataService;

@@ -10,6 +10,11 @@ namespace MintaProjekt.Pages
     [AllowAnonymous]
     public class IndexModel : PageModel
     {
-        
+        public string Username { get; private set; }
+
+        public void OnGet()
+        {
+            Username = HttpContext.Session.GetString("User");
+        }
     }
 }

@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MintaProjekt.Services
 {
-    public class EmployeeDataAccess : IEmployeeDataAccess
+    public class EmployeeDataService : IEmployeeDataService
     {
         private readonly string? _connectionString;
-        private readonly ILogger<IEmployeeDataAccess> _logger;
+        private readonly ILogger<IEmployeeDataService> _logger;
 
-        public EmployeeDataAccess(ILogger<IEmployeeDataAccess> logger, IConfiguration configuration)
+        public EmployeeDataService(ILogger<IEmployeeDataService> logger, IConfiguration configuration)
         {
             _logger = logger;
             _connectionString = configuration.GetConnectionString("MSSQLConnection");
