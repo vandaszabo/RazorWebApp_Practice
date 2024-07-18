@@ -1,21 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-#nullable disable
-
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.Cookies;
+
 using MintaProjekt.Utilities;
 
 namespace MintaProjekt.Areas.Identity.Pages.Account
@@ -120,7 +111,7 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
                 {
                     // Retrieve userID 
                     var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
-                    var userId = user.Id; // TODO Add User object in session 
+                    var userId = user.Id;
 
                     // Store user in session
                     HttpContext.Session.SetObjectAsJson("User", user);

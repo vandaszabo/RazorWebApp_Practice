@@ -25,29 +25,29 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">@Localizer["Home"]</a>
                         </li>
                           @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Employees">Employees</a>
+                                <a class="nav-link text-dark" asp-page="/Employees">@Localizer["Employees"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/AddEmployee">Add Employee</a>
+                                <a class="nav-link text-dark" asp-page="/AddEmployee">@Localizer["AddEmployee"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/DeleteEmployee">Delete Employee</a>
+                                <a class="nav-link text-dark" asp-page="/DeleteEmployee">@Localizer["DeleteEmployee"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/UpdateEmployee">Update Employee</a>
+                                <a class="nav-link text-dark" asp-page="/UpdateEmployee">@Localizer["UpdateEmployee"]</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Departments">Departments</a>
+                                <a class="nav-link text-dark" asp-page="/Departments">@Localizer["Departments"]</a>
                             </li>
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-page="/Administrator">Admin</a>
+                                    <a class="nav-link text-dark" asp-page="/Administrator">@Localizer["Administrator"]</a>
                                 </li>
                             }
                         }

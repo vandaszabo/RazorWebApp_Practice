@@ -49,9 +49,11 @@ namespace MintaProjekt
                     new CultureInfo("en-US"),
                     new CultureInfo("hu-HU")
                 };
-                options.DefaultRequestCulture = new RequestCulture("hu-HU");
+                options.DefaultRequestCulture = new RequestCulture("en-US");
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;
+
+                options.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider());
             });
             // Add Session
             AddSession(builder);

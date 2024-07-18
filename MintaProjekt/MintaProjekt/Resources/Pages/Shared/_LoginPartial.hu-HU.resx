@@ -117,13 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="HelloMessage" xml:space="preserve">
-    <value>Ez itt a bemutatkozó szöveg.</value>
+  <data name="Login" xml:space="preserve">
+    <value>Bejelentkezés</value>
   </data>
-  <data name="SelectLanguage" xml:space="preserve">
-    <value>Kérem válasszon nyelvet!</value>
+  <data name="Logout" xml:space="preserve">
+    <value>Kijelentkezés</value>
   </data>
-  <data name="Welcome" xml:space="preserve">
-    <value>Üdvözöljük</value>
+  <data name="Register" xml:space="preserve">
+    <value>Regisztráció</value>
   </data>
 </root>

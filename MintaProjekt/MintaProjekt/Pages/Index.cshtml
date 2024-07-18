@@ -7,20 +7,21 @@
 }
 
 <h2>@Localizer["SelectLanguage"]</h2>
-<form id="selectLanguage" asp-page-handler="SetLanguage" method="post">
+<form method="post" asp-page-handler="SetLanguage">
     <select name="culture" onchange="this.form.submit();">
-        <option value="en-US">English</option>
+        <option value="">-select-</option>
         <option value="hu-HU">Hungarian</option>
+        <option value="en-US">English</option>
     </select>
 </form>
 
 
 @if (Model.CurrentUser != null)
 {
-    <h1>@Localizer["Hello"], @Model.CurrentUser.UserName!</h1>
+    <h1>@Localizer["Welcome"], @Model.CurrentUser.UserName!</h1>
 }
 else
 {
-    <h1>@Localizer["Hello"]!</h1>
+    <h1>@Localizer["Welcome"]!</h1>
 }
 <h2>@Localizer["HelloMessage"]</h2>

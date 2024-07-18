@@ -117,13 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="HelloMessage" xml:space="preserve">
-    <value>Ez itt a bemutatkozó szöveg.</value>
+  <data name="AddEmployee" xml:space="preserve">
+    <value>Dolgozó hozzáadása</value>
   </data>
-  <data name="SelectLanguage" xml:space="preserve">
-    <value>Kérem válasszon nyelvet!</value>
+  <data name="Administrator" xml:space="preserve">
+    <value>Adminisztrátor</value>
   </data>
-  <data name="Welcome" xml:space="preserve">
-    <value>Üdvözöljük</value>
+  <data name="DeleteEmployee" xml:space="preserve">
+    <value>Dolgozó törlése</value>
+  </data>
+  <data name="Departments" xml:space="preserve">
+    <value>Osztályok</value>
+  </data>
+  <data name="Employees" xml:space="preserve">
+    <value>Dolgozók</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Kezdőlap</value>
+  </data>
+  <data name="UpdateEmployee" xml:space="preserve">
+    <value>Dolgozó szerkesztése</value>
   </data>
 </root>

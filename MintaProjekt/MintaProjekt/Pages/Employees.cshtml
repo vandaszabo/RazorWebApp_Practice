@@ -1,20 +1,22 @@
 ﻿@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @model MintaProjekt.Pages.EmployeesModel
 @{
 }
 
-<h1>Employees</h1>
+<h1>@Localizer["Employees"]</h1>
 <table class="table">
     <thead>
         <tr>
-            <th>Employee ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-            <th>Hire Date</th>
-            <th>Job Title</th>
-            <th>Department</th>
+            <th>@Localizer["EmployeeID"]</th>
+            <th>@Localizer["FirstName"]</th>
+            <th>@Localizer["LastName"]</th>
+            <th>@Localizer["Email"]</th>
+            <th>@Localizer["PhoneNumber"]</th>
+            <th>@Localizer["HireDate"]</th>
+            <th>@Localizer["JobTitle"]</th>
+            <th>@Localizer["Department"]</th>
         </tr>
     </thead>
     <tbody>

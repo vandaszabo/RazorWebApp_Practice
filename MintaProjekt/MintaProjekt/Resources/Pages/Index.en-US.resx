@@ -117,13 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Hello" xml:space="preserve">
-    <value>Hello</value>
-  </data>
   <data name="HelloMessage" xml:space="preserve">
-    <value>Welcome, This is the introduction text.</value>
+    <value>This is the introduction text.</value>
   </data>
   <data name="SelectLanguage" xml:space="preserve">
     <value>Please select a language!</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome</value>
   </data>
 </root>
