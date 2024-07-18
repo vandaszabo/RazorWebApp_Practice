@@ -7,6 +7,9 @@ using MintaProjekt.Services;
 using Serilog;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MintaProjekt.Authorization;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
+using MintaProjekt.Utilities;
 
 namespace MintaProjekt
 {
@@ -32,6 +35,14 @@ namespace MintaProjekt
             AddAuthentication(builder);
             AddAuthorization(builder);
             AddIdentity(builder);
+
+            // Add localization to pages
+            builder.Services.AddRazorPages()
+                       .AddViewLocalization()
+                       .AddDataAnnotationsLocalization();
+
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
             AddControllers(builder);
             AddScopedServices(builder);
             builder.Services.AddHttpContextAccessor();
@@ -48,6 +59,20 @@ namespace MintaProjekt
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            // Add the supported languages
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("hu-HU")
+            };
+
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("hu-HU"),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -100,6 +125,7 @@ namespace MintaProjekt
         {
             builder.Services.AddScoped<IEmployeeDataAccess, EmployeeDataAccess>();
             builder.Services.AddScoped<IDepartmentDataAccess, DepartmentDataAccess>();
+            builder.Services.AddScoped<UserHelper>();
         }
 
         // Add DbContext
@@ -134,7 +160,6 @@ namespace MintaProjekt
            .AddRoles<IdentityRole>()
            .AddEntityFrameworkStores<UserDbContext>();
 
-            builder.Services.AddRazorPages();
         }
 
     }

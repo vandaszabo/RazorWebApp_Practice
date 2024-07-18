@@ -12,11 +12,12 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<AddEmployeeModel> _logger;
         private readonly IEmployeeDataAccess _dataAccess;
+        private readonly UserHelper _userHelper;
 
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataAccess dataService)
+        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataAccess dataService, UserHelper userHelper)
         {
             _logger = logger;
             _dataAccess = dataService;
@@ -24,6 +25,7 @@ namespace MintaProjekt.Pages
             {
                 HireDate = DateOnly.FromDateTime(DateTime.Now)
             };
+            _userHelper = userHelper;
         }
 
         // Create Employee
@@ -42,7 +44,8 @@ namespace MintaProjekt.Pages
             {
                 // Get Current User's ID
                 _logger.LogDebug("Try to access current User ID.");
-                string userID = UserHelper.GetCurrentUserID(User);
+                string userID = await _userHelper.GetCurrentUserIDAsync(User);
+                _logger.LogInformation("User ID in AddEmployee OnPostAsync method: {userID}", userID);
 
                 // Invoke AddEmployee from EmployeeDataService
                 await _dataAccess.AddEmployeeAsync(Employee, userID);

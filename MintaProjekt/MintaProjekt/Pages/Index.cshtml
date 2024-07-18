@@ -1,6 +1,9 @@
 ﻿@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @model IndexModel
 @{
 }
 
-<h1>Home Page</h1>
+<h1>@Localizer["Hello"]</h1>

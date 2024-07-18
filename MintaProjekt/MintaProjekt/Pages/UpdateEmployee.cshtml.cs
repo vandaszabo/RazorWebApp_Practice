@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
 using MintaProjekt.Services;
+using MintaProjekt.Utilities;
 using System.Data.SqlClient;
 using System.Security.Claims;
 
@@ -16,6 +15,7 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
         private readonly IEmployeeDataAccess _dataAccess;
+        private readonly UserHelper _userHelper;
         public SelectList? EmployeeList { get; set; }
 
         [BindProperty]
@@ -24,10 +24,11 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public int EmployeeID { get; set; }
 
-        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataAccess dataService, UserManager<IdentityUser> userManager)
+        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataAccess dataService, UserHelper userHelper)
         {
             _logger = logger;
             _dataAccess = dataService;
+            _userHelper = userHelper;
         }
 
         // Retrieve all employees to choose from
@@ -79,15 +80,6 @@ namespace MintaProjekt.Pages
         // Update Employee information
         public async Task<IActionResult> OnPostUpdateAsync()
         {
-            var currentUserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (currentUserID == null)
-            {
-                _logger.LogError("UserId is null in UpdateEmployeeModel");
-                ModelState.AddModelError(string.Empty, "Cannot update with invalid userID.");
-                return Page();
-            }
-
             if (SelectedEmployee == null || SelectedEmployee.EmployeeID <= 0)
             {
                 _logger.LogWarning($"SelectedEmployee object is not correctly set in UpdateEmployeeModel.");
@@ -97,24 +89,15 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataAccess.UpdateEmployeeAsync(SelectedEmployee, currentUserID);
+                // Get Current User's ID
+                _logger.LogDebug("Try to access current User ID.");
+                string userID = await _userHelper.GetCurrentUserIDAsync(User);
+                _logger.LogInformation("User ID in UpdateEmployee OnPostUpdateAsync method: {userID}", userID);
+
+                // Invoke UpdateEmployee from EmployeeDataService
+                await _dataAccess.UpdateEmployeeAsync(SelectedEmployee, userID);
                 _logger.LogInformation("Successful employee update for {ID}", SelectedEmployee.EmployeeID);
                 return RedirectToPage("/Employees");
-            }
-            catch (ArgumentException)
-            {
-                ModelState.AddModelError(string.Empty, "Please provide all required information.");
-                return Page();
-            }
-            catch (NoRowsAffectedException)
-            {
-                ModelState.AddModelError(string.Empty, "Employee not found for update.");
-                return Page();
-            }
-            catch (SqlException)
-            {
-                ModelState.AddModelError(string.Empty, "An error occurred while updating the employee.");
-                return Page();
             }
             catch (Exception)
             {

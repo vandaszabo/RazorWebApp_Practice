@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Exeptions;
 using MintaProjekt.Services;
+using MintaProjekt.Utilities;
 using System.Data.SqlClient;
 using System.Security.Claims;
 
@@ -13,11 +14,13 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<DeleteEmployeeModel> _logger;
         private readonly IEmployeeDataAccess _dataAccess;
+        private readonly UserHelper _userHelper;
 
-        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, IEmployeeDataAccess dataService)
+        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, IEmployeeDataAccess dataService, UserHelper userHelper)
         {
             _logger = logger;
             _dataAccess = dataService;
+            _userHelper = userHelper;
         }
 
         [BindProperty] 
@@ -27,14 +30,6 @@ namespace MintaProjekt.Pages
         // Delete Employee
         public async Task<IActionResult> OnPostAsync()
         {
-            var currentUserID = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (currentUserID == null)
-            {
-                _logger.LogError("UserId is null in DeleteEmployeeModel");
-                ModelState.AddModelError(string.Empty, "Cannot delete employee with invalid userID.");
-                return Page();
-            }
-
             if (EmployeeID <= 0)
             {
                 _logger.LogWarning("Cannot delete employee. Invalid employee ID: {EmployeeID}", EmployeeID);
@@ -44,19 +39,15 @@ namespace MintaProjekt.Pages
 
             try
             {
-                await _dataAccess.DeleteEmployeeAsync(EmployeeID, currentUserID);
+                // Get Current User's ID
+                _logger.LogDebug("Try to access current User ID.");
+                string userID = await _userHelper.GetCurrentUserIDAsync(User);
+                _logger.LogInformation("User ID in DeleteEmployee OnPostAsync method: {userID}", userID);
+
+                // Invoke DeleteEmployee from EmployeeDataService
+                await _dataAccess.DeleteEmployeeAsync(EmployeeID, userID);
                 _logger.LogInformation("Successfully deleted employee with ID: {EmployeeID}", EmployeeID);
                 return RedirectToPage("/Employees");
-            }
-            catch (SqlException)
-            {
-                ModelState.AddModelError(string.Empty, "An error occurred while deleting the employee.");
-                return Page();
-            }
-            catch (NoRowsAffectedException)
-            {
-                ModelState.AddModelError(string.Empty, "No employee found with the given ID.");
-                return Page();
             }
             catch (Exception)
             {

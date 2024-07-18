@@ -1,32 +1,28 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace MintaProjekt.Utilities
 {
-    public static class UserHelper
+    public class UserHelper
     {
-        // Get Current User's ID
-        public static string GetCurrentUserID(ClaimsPrincipal user)
+        private readonly UserManager<IdentityUser> _userManager;
+        public UserHelper(UserManager<IdentityUser> userManager)
         {
-            // Find all User Claims with type: ClaimTypes.NameIdentifier
-            var userClaims = user.FindAll(ClaimTypes.NameIdentifier).ToList();
+            _userManager = userManager;
+        }
 
-            // Check if no claims found 
-            if (userClaims.Count == 0)
-            {
-                throw new InvalidOperationException("User ID claim is not found.");
-            }
+        // Get Current User's ID
+        public async Task<string> GetCurrentUserIDAsync(ClaimsPrincipal user)
+        {
+            // Get the userName
+            var userIdentity = user.Identity ?? throw new InvalidOperationException("User Identity not found.");
+            var userName = userIdentity.Name ?? throw new InvalidOperationException("User's Name not found.");
 
-            // Check if more than one found
-            if (userClaims.Count > 1)
-            {
-                throw new InvalidOperationException("Multiple User ID claims found.");
-            }
+            // Use UserManager to find the user by name
+            var identityUser = await _userManager.FindByNameAsync(userName) ?? throw new InvalidOperationException("User not found.");
 
-            // Retrieve UserID from Claim
-            var currentUserIDClaim = userClaims.Single();
-            var currentUserID = currentUserIDClaim.Value;
-
-            return currentUserID;
+            // Return the user's ID
+            return identityUser.Id;
         }
     }
 }
