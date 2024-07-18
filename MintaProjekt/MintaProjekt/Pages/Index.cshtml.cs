@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using MintaProjekt.Services;
 using MintaProjekt.Models;
 using Microsoft.AspNetCore.Mvc;
+using MintaProjekt.Utilities;
+using Microsoft.AspNetCore.Identity;
 
 namespace MintaProjekt.Pages
 {
@@ -10,11 +12,11 @@ namespace MintaProjekt.Pages
     [AllowAnonymous]
     public class IndexModel : PageModel
     {
-        public string Username { get; private set; }
+        public IdentityUser? CurrentUser { get; private set; }
 
         public void OnGet()
         {
-            Username = HttpContext.Session.GetString("User");
+            CurrentUser = HttpContext.Session.GetObjectFromJson<IdentityUser>("User");
         }
     }
 }

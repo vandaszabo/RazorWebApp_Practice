@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Exeptions;
@@ -14,13 +15,11 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<DeleteEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataAccess;
-        private readonly UserHelper _userHelper;
 
-        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, IEmployeeDataService dataService, UserHelper userHelper)
+        public DeleteEmployeeModel(ILogger<DeleteEmployeeModel> logger, IEmployeeDataService dataService)
         {
             _logger = logger;
             _dataAccess = dataService;
-            _userHelper = userHelper;
         }
 
         [BindProperty] 
@@ -41,7 +40,7 @@ namespace MintaProjekt.Pages
             {
                 // Get Current User's ID
                 _logger.LogDebug("Try to access current User ID.");
-                string userID = await _userHelper.GetCurrentUserIDAsync(User);
+                string userID = HttpContext.Session.GetObjectFromJson<IdentityUser>("User").Id;
                 _logger.LogInformation("User ID in DeleteEmployee OnPostAsync method: {userID}", userID);
 
                 // Invoke DeleteEmployee from EmployeeDataService

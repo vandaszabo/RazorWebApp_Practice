@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Models;
@@ -12,12 +13,11 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<AddEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataAccess;
-        private readonly UserHelper _userHelper;
 
         [BindProperty]
         public Employee Employee { get; set; }
 
-        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService, UserHelper userHelper)
+        public AddEmployeeModel(ILogger<AddEmployeeModel> logger, IEmployeeDataService dataService)
         {
             _logger = logger;
             _dataAccess = dataService;
@@ -25,7 +25,6 @@ namespace MintaProjekt.Pages
             {
                 HireDate = DateOnly.FromDateTime(DateTime.Now)
             };
-            _userHelper = userHelper;
         }
 
         // Create Employee
@@ -44,7 +43,8 @@ namespace MintaProjekt.Pages
             {
                 // Get Current User's ID
                 _logger.LogDebug("Try to access current User ID.");
-                string userID = await _userHelper.GetCurrentUserIDAsync(User);
+                string userID = HttpContext.Session.GetObjectFromJson<IdentityUser>("User").Id;
+
                 _logger.LogInformation("User ID in AddEmployee OnPostAsync method: {userID}", userID);
 
                 // Invoke AddEmployee from EmployeeDataService

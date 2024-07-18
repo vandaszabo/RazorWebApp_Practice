@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,7 +16,6 @@ namespace MintaProjekt.Pages
     {
         private readonly ILogger<UpdateEmployeeModel> _logger;
         private readonly IEmployeeDataService _dataAccess;
-        private readonly UserHelper _userHelper;
         public SelectList? EmployeeList { get; set; }
 
         [BindProperty]
@@ -24,11 +24,10 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public int EmployeeID { get; set; }
 
-        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataService dataService, UserHelper userHelper)
+        public UpdateEmployeeModel(ILogger<UpdateEmployeeModel> logger, IEmployeeDataService dataService)
         {
             _logger = logger;
             _dataAccess = dataService;
-            _userHelper = userHelper;
         }
 
         // Retrieve all employees to choose from
@@ -91,7 +90,7 @@ namespace MintaProjekt.Pages
             {
                 // Get Current User's ID
                 _logger.LogDebug("Try to access current User ID.");
-                string userID = await _userHelper.GetCurrentUserIDAsync(User);
+                string userID = HttpContext.Session.GetObjectFromJson<IdentityUser>("User").Id;
                 _logger.LogInformation("User ID in UpdateEmployee OnPostUpdateAsync method: {userID}", userID);
 
                 // Invoke UpdateEmployee from EmployeeDataService

@@ -1,30 +1,43 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace MintaProjekt.Utilities
 {
     public class UserHelper
     {
-        // TODO Change code for retrive userID from session
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<UserHelper> _logger;
 
-        private readonly UserManager<IdentityUser> _userManager;
-        public UserHelper(UserManager<IdentityUser> userManager)
+        public UserHelper(IHttpContextAccessor httpContextAccessor, ILogger<UserHelper> helper)
         {
-            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
+            _logger = helper;
         }
 
-        // Get Current User's ID
-        public async Task<string> GetCurrentUserIDAsync(ClaimsPrincipal user)
+        // Get Current User
+        public IdentityUser? GetCurrentUser()
         {
-            // Get the userName
-            var userIdentity = user.Identity ?? throw new InvalidOperationException("User Identity not found.");
-            var userName = userIdentity.Name ?? throw new InvalidOperationException("User's Name not found.");
+            if(_httpContextAccessor.HttpContext == null)
+            {
+                _logger.LogWarning("Cannot access HttpContext.");
+                return null;
+            }
+            try
+            {
+                var user = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<IdentityUser>("User");
 
-            // Use UserManager to find the user by name
-            var identityUser = await _userManager.FindByNameAsync(userName) ?? throw new InvalidOperationException("User not found.");
+                if(user != null)
+                {
+                    _logger.LogInformation("Current User's Name: {UserName}.", user.UserName);
+                    return user;
+                }
 
-            // Return the user's ID
-            return identityUser.Id;
+                _logger.LogWarning("Current User not found.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(ex.Message);
+            }
         }
     }
 }

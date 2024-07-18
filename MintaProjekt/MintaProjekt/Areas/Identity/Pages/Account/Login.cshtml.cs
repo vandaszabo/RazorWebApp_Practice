@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using MintaProjekt.Utilities;
 
 namespace MintaProjekt.Areas.Identity.Pages.Account
 {
@@ -84,7 +85,7 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Display(Name = "Remember me?")]
-            public bool RememberMe { get; set; }
+            public bool RememberMe { get; set; } = false;
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -114,16 +115,15 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     // Retrieve userID 
                     var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
                     var userId = user.Id; // TODO Add User object in session 
 
-                    // Testing session set 
-                    HttpContext.Session.SetString("User", "Vanda");
-
+                    // Store user in session
+                    HttpContext.Session.SetObjectAsJson("User", user);
 
                     _logger.LogInformation("User logged in. {UserID}: ", userId);
                     return LocalRedirect(returnUrl);
@@ -131,7 +131,7 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
 
                 if (result.RequiresTwoFactor)
                 {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = false });
                 }
                 if (result.IsLockedOut)
                 {

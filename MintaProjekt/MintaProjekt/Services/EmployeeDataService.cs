@@ -160,7 +160,6 @@ namespace MintaProjekt.Services
         public async Task AddEmployeeAsync(Employee employee, string userID)
         {
             _logger.LogInformation("Start AddEmployeeAsync method.");
-            _logger.LogDebug("Received ID must be greater than zero.");
             _logger.LogInformation("Received employee: {Employee}", employee.ToString());
 
             // Validate Employee object

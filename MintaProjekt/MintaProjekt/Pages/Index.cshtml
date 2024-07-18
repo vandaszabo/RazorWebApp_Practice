@@ -7,9 +7,9 @@
 }
 
 <h1>@Localizer["Hello"]</h1>
-@if (Model.Username != null)
+@if (Model.CurrentUser != null)
 {
-    <h2>Welcome, @Model.Username!</h2>
+    <h2>Welcome, @Model.CurrentUser.UserName!</h2>
 }
 else
 {
