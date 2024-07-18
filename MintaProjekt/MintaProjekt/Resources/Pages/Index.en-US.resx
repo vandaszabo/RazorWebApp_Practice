@@ -120,4 +120,10 @@
   <data name="Hello" xml:space="preserve">
     <value>Hello</value>
   </data>
+  <data name="HelloMessage" xml:space="preserve">
+    <value>Welcome, This is the introduction text.</value>
+  </data>
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>Please select a language!</value>
+  </data>
 </root>

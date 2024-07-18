@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authorization;
-using MintaProjekt.Services;
-using MintaProjekt.Models;
 using Microsoft.AspNetCore.Mvc;
 using MintaProjekt.Utilities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 
 namespace MintaProjekt.Pages
 {
@@ -17,6 +16,17 @@ namespace MintaProjekt.Pages
         public void OnGet()
         {
             CurrentUser = HttpContext.Session.GetObjectFromJson<IdentityUser>("User");
+        }
+
+        public IActionResult OnPostSetLanguage(string culture)
+        {
+            Response.Cookies.Append(
+                CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+            );
+
+            return Page();
         }
     }
 }

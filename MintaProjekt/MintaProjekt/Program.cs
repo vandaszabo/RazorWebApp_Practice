@@ -10,6 +10,7 @@ using MintaProjekt.Authorization;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using MintaProjekt.Utilities;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace MintaProjekt
 {
@@ -38,10 +39,20 @@ namespace MintaProjekt
 
             // Add Pages with localization
             builder.Services.AddRazorPages()
-                       .AddViewLocalization()
+                       .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
                        .AddDataAnnotationsLocalization();
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-
+            builder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[]
+                {
+                    new CultureInfo("en-US"),
+                    new CultureInfo("hu-HU")
+                };
+                options.DefaultRequestCulture = new RequestCulture("hu-HU");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
             // Add Session
             AddSession(builder);
 
@@ -62,19 +73,7 @@ namespace MintaProjekt
                 app.UseHsts();
             }
 
-            // Add the supported languages
-            var supportedCultures = new[]
-            {
-                new CultureInfo("en-US"),
-                new CultureInfo("hu-HU")
-            };
-
-            app.UseRequestLocalization(new RequestLocalizationOptions
-            {
-                DefaultRequestCulture = new RequestCulture("hu-HU"),
-                SupportedCultures = supportedCultures,
-                SupportedUICultures = supportedCultures
-            });
+            app.UseRequestLocalization();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

@@ -2,16 +2,25 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 
-@model IndexModel
+@model MintaProjekt.Pages.IndexModel
 @{
 }
 
-<h1>@Localizer["Hello"]</h1>
+<h2>@Localizer["SelectLanguage"]</h2>
+<form id="selectLanguage" asp-page-handler="SetLanguage" method="post">
+    <select name="culture" onchange="this.form.submit();">
+        <option value="en-US">English</option>
+        <option value="hu-HU">Hungarian</option>
+    </select>
+</form>
+
+
 @if (Model.CurrentUser != null)
 {
-    <h2>Welcome, @Model.CurrentUser.UserName!</h2>
+    <h1>@Localizer["Hello"], @Model.CurrentUser.UserName!</h1>
 }
 else
 {
-    <h2>Welcome, guest!</h2>
+    <h1>@Localizer["Hello"]!</h1>
 }
+<h2>@Localizer["HelloMessage"]</h2>
