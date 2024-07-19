@@ -80,7 +80,7 @@ namespace MintaProjekt
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            // Session Middleware
+            // Session Middleware => HttpContext.Session is available for use
             app.UseSession();
 
             app.UseRouting();

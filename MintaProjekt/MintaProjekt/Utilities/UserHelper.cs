@@ -16,7 +16,7 @@ namespace MintaProjekt.Utilities
         // Get Current User
         public IdentityUser? GetCurrentUser()
         {
-            if(_httpContextAccessor.HttpContext == null)
+            if (_httpContextAccessor.HttpContext == null)
             {
                 _logger.LogWarning("Cannot access HttpContext.");
                 return null;
@@ -25,14 +25,14 @@ namespace MintaProjekt.Utilities
             {
                 var user = _httpContextAccessor.HttpContext.Session.GetObjectFromJson<IdentityUser>("User");
 
-                if(user != null)
+                if (user == null)
                 {
-                    _logger.LogInformation("Current User's Name: {UserName}.", user.UserName);
-                    return user;
+                    _logger.LogWarning("Current User not found.");
+                    return null;
                 }
 
-                _logger.LogWarning("Current User not found.");
-                return null;
+                _logger.LogInformation("Current User's ID: {UserID}.", user.Id);
+                return user;
             }
             catch (Exception ex)
             {
