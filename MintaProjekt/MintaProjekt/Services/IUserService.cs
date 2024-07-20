@@ -1,7 +1,10 @@
-﻿namespace MintaProjekt.Services
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace MintaProjekt.Services
 {
     public interface IUserService
     {
-        Task LogoutUserAsync(string userId);
+        Task<IEnumerable<IdentityUser>> GetUsers();
+        Task LogoutUser(string userId);
     }
 }
