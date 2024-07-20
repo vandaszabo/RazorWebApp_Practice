@@ -15,6 +15,7 @@
                 <th>User Name</th>
                 <th>Email</th>
                 <th>Roles</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -24,6 +25,15 @@
                     <td>@userWithRoles.User.UserName</td>
                     <td>@userWithRoles.User.Email</td>
                     <td>@string.Join(", ", userWithRoles.Roles)</td>
+                    <td>
+                        <form method="post" asp-page-handler="Update">
+                            <input type="hidden" name="SelectedUserID" value="@userWithRoles.User.Id" />
+                            <select name="SelectedRole" asp-items="@(new SelectList(Model.RolesWithClaims, "Role.Name", "Role.Name"))">
+                                <option value="" disabled selected>Select new Role</option>
+                            </select>
+                            <button type="submit">Change role</button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -65,4 +75,19 @@ else
 else
 {
     <p>No roles found.</p>
+}
+
+@section Scripts {
+    <script>
+        function showRoleSelect(userId) {
+            var roleSelectDiv = document.getElementById('role-select-' + userId);
+            roleSelectDiv.style.display = roleSelectDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateUserRole(userId) {
+            var selectedRole = document.getElementById('role-dropdown-' + userId).value;
+            // Make an AJAX call to update the user's role or submit a form
+            alert('Selected role for user ' + userId + ': ' + selectedRole);
+        }
+    </script>
 }

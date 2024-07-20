@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Serilog;
-using System.Data;
 using System.Security.Claims;
 
 namespace MintaProjekt.Services.Roles
@@ -20,6 +18,7 @@ namespace MintaProjekt.Services.Roles
         // Create Role
         public async Task<IdentityRole> CreateRole(string roleName)
         {
+            _logger.LogInformation("Start CreateRole method.");
             try
             {
                 _logger.LogInformation("Try to create role {roleName}", roleName);
@@ -59,6 +58,7 @@ namespace MintaProjekt.Services.Roles
         // Add List of claims to a role
         public async Task AddClaimsToRole(IdentityRole role, List<Claim> claims)
         {
+            _logger.LogInformation("Start AddClaimsToRole method.");
             try
             {
                 foreach (var claim in claims)
@@ -76,6 +76,7 @@ namespace MintaProjekt.Services.Roles
         // Assign new claim to a role
         public async Task AddClaimIfNotExists(IdentityRole role, Claim claim)
         {
+            _logger.LogInformation("Start AddClaimIfNotExists method.");
             var claims = await _roleRepository.GetClaimsAsync(role);
 
             // Add new claim if it doesn't exist
@@ -95,6 +96,7 @@ namespace MintaProjekt.Services.Roles
         // Get claims for specific role
         public async Task<IEnumerable<Claim>> GetClaimsForRoleAsync(string roleID)
         {
+            _logger.LogInformation("Start GetClaimsForRoleAsync method.");
             try
             {
                 // Get the role object
@@ -107,7 +109,6 @@ namespace MintaProjekt.Services.Roles
 
                 // Get its claims
                 var roleClaims = await _roleRepository.GetClaimsAsync(role);
-                _logger.LogInformation("Role claims successfully retrieved from database.");
                 return roleClaims;
 
             }
@@ -122,7 +123,7 @@ namespace MintaProjekt.Services.Roles
         // Get all roles
         public async Task<IEnumerable<IdentityRole>> GetAllRoles()
         {
-            _logger.LogInformation("Try to find all roles.");
+            _logger.LogInformation("Start GetAllRoles method.");
             try
             {
                 var roles= await _roleRepository.GetAllRolesAsync();
@@ -131,7 +132,7 @@ namespace MintaProjekt.Services.Roles
                     _logger.LogWarning("No roles found.");
                 }
 
-                _logger.LogInformation("Roles found successfully.");
+                _logger.LogDebug("Roles found successfully in RoleService- GetAllRoles method.");
                 return roles;
             }
             catch (Exception ex)

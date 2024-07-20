@@ -16,6 +16,11 @@ namespace MintaProjekt.Pages
         public IEnumerable<RoleWithClaims> RolesWithClaims { get; private set; }
         public IEnumerable<UserWithRoles> UsersWithRoles { get; private set; }
 
+        [BindProperty]
+        public string? SelectedUserID { get; set; }
+        [BindProperty]
+        public string? SelectedRole { get; set; }
+
         public AdminModel(IUserService userService, IRoleService roleService)
         {
             _userService = userService;
@@ -25,7 +30,7 @@ namespace MintaProjekt.Pages
         }
 
         // Get all Users and Roles
-        public async Task<IActionResult> OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             try
             {
@@ -58,6 +63,25 @@ namespace MintaProjekt.Pages
             {
                 ModelState.AddModelError(string.Empty, "An error occurred while retrieving users.");
                 return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostUpdateAsync()
+        {
+            if (SelectedUserID == null || SelectedRole == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid selection.");
+                return await OnGetAsync();
+            }
+            try
+            {
+                await _userService.ChangeUserRole(SelectedUserID, SelectedRole);
+                return await OnGetAsync();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while updating user role.");
+                return RedirectToPage("/Error");
             }
         }
 

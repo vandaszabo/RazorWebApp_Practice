@@ -6,6 +6,8 @@ namespace MintaProjekt.Services.Users
     {
         Task<IEnumerable<IdentityUser>> GetUsers();
         Task<IEnumerable<string>> GetUserRoles(IdentityUser user);
+        Task UpdateUserProperties(IdentityUser user);
         Task LogoutUser(string userId);
+        Task ChangeUserRole(string userId, string newRole);
     }
 }
