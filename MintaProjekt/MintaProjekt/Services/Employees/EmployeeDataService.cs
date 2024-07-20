@@ -6,7 +6,7 @@ using MintaProjekt.Exeptions;
 using MintaProjekt.Enums;
 using Microsoft.AspNetCore.Authorization;
 
-namespace MintaProjekt.Services
+namespace MintaProjekt.Services.Employees
 {
     public class EmployeeDataService : IEmployeeDataService
     {
@@ -25,59 +25,59 @@ namespace MintaProjekt.Services
         {
             _logger.LogInformation("Starting GetEmployeeAsync");
 
-                try 
-                { 
-                    // Create SQL Connection
-                    using var connection = new SqlConnection(_connectionString);
-                    await connection.OpenAsync();
+            try
+            {
+                // Create SQL Connection
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
 
-                    // Create SQL Command
-                    string commandText = "EXEC sp_get_employees";
-                    var command = new SqlCommand(commandText, connection);
+                // Create SQL Command
+                string commandText = "EXEC sp_get_employees";
+                var command = new SqlCommand(commandText, connection);
 
-                    // Execute
-                    _logger.LogInformation("Executing sp_get_employees stored procedure.");
-                    using var reader = await command.ExecuteReaderAsync();
+                // Execute
+                _logger.LogInformation("Executing sp_get_employees stored procedure.");
+                using var reader = await command.ExecuteReaderAsync();
 
-                    var employees = new List<Employee>();
-                    while (await reader.ReadAsync())
-                    {
-                        employees.Add(new Employee(
-                            reader.GetInt32(0),  // EmployeeID
-                            reader.GetString(1), // FirstName
-                            reader.GetString(2), // LastName
-                            reader.GetString(3), // Email
-                            PhoneNumber.Parse(reader.GetString(4)), // PhoneNumber
-                            DateOnly.FromDateTime(reader.GetDateTime(5)), // HireDate
-                            reader.GetString(6), // JobTitle
-                            Enum.Parse<DepartmentName>(reader.GetString(7)) // DepartmentName
-                        ));
-                    }
-
-                    if(employees.Count == 0)
-                    {
-                        _logger.LogWarning("No employees found.");
-                        throw new NoRowsAffectedException("No employees found in the database.");
-                    }
-
-                    return employees;
-
-                }
-                catch (SqlException ex)
+                var employees = new List<Employee>();
+                while (await reader.ReadAsync())
                 {
-                    _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - GetEmployeesAsync method.");
-                    throw;
+                    employees.Add(new Employee(
+                        reader.GetInt32(0),  // EmployeeID
+                        reader.GetString(1), // FirstName
+                        reader.GetString(2), // LastName
+                        reader.GetString(3), // Email
+                        PhoneNumber.Parse(reader.GetString(4)), // PhoneNumber
+                        DateOnly.FromDateTime(reader.GetDateTime(5)), // HireDate
+                        reader.GetString(6), // JobTitle
+                        Enum.Parse<DepartmentName>(reader.GetString(7)) // DepartmentName
+                    ));
                 }
-                catch (NoRowsAffectedException ex)
+
+                if (employees.Count == 0)
                 {
-                    _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - GetEmployeesAsync method.");
-                    throw;
+                    _logger.LogWarning("No employees found.");
+                    throw new NoRowsAffectedException("No employees found in the database.");
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Exception occurred in EmployeeDataService - GetEmployeesAsync method.");
-                    throw;
-                }
+
+                return employees;
+
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL Exception occurred in EmployeeDataService - GetEmployeesAsync method.");
+                throw;
+            }
+            catch (NoRowsAffectedException ex)
+            {
+                _logger.LogError(ex, "NoRowsAffectedException occurred in EmployeeDataService - GetEmployeesAsync method.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred in EmployeeDataService - GetEmployeesAsync method.");
+                throw;
+            }
 
         }
 
@@ -110,7 +110,7 @@ namespace MintaProjekt.Services
                 // Execute
                 _logger.LogInformation("Executing sp_get_employee_by_id stored procedure.");
                 using SqlDataReader reader = await command.ExecuteReaderAsync();
-                
+
                 Employee employee = new();
                 if (await reader.ReadAsync())
                 {
@@ -138,7 +138,7 @@ namespace MintaProjekt.Services
                     throw new KeyNotFoundException($"No employee found with ID {employeeID}.");
                 }
             }
-            catch(KeyNotFoundException ex)
+            catch (KeyNotFoundException ex)
             {
                 _logger.LogError(ex, "KeyNotFoundException occurred in EmployeeDataService - GetEmployeeByIDAsync method.");
                 throw;
@@ -204,7 +204,7 @@ namespace MintaProjekt.Services
             catch (ArgumentException ex)
             {
                 _logger.LogError(ex, "ArgumentExeption occured in EmployeeDataService - AddEmployeeAsync method.");
-                throw ; // UI Exeption (többnyelvű)
+                throw; // UI Exeption (többnyelvű)
             }
             catch (SqlException ex)
             {

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using MintaProjekt.Data;
-using MintaProjekt.DbContext;
 
-namespace MintaProjekt.Services
+namespace MintaProjekt.Services.Users
 {
     public class UserService : IUserService
     {
@@ -32,7 +30,26 @@ namespace MintaProjekt.Services
                 throw new InvalidDataException(); // TODO custom UI exeption
             }
         }
-     
+
+        // Get user roles
+        public async Task<IEnumerable<string>> GetUserRoles(IdentityUser user)
+        {
+            _logger.LogDebug("Try to get role names for user {userID} ", user.Id);
+            try
+            {
+                var roleNames = await _userRepository.GetUserRoles(user);
+                _logger.LogInformation("Number of roles found for user: {roles.Count}", roleNames.Count());
+                return roleNames;
+
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex, "Exeption occured in UserService GetUserRoles method.");
+                throw new InvalidDataException(); // TODO custom UI exeption
+            }
+        }
+
+
         // Logout specific user
         public async Task LogoutUser(string userID)
         {

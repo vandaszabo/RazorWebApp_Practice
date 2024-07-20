@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
-using MintaProjekt.Services;
-using System.Data.SqlClient;
+using MintaProjekt.Services.Employees;
 
 namespace MintaProjekt.Pages
 {
@@ -29,19 +27,9 @@ namespace MintaProjekt.Pages
                 Employees = await _dataAccess.GetEmployeesAsync();
                 return Page();
             }
-            catch (SqlException)
-            {
-                _logger.LogError("Database related error occurred while retrieving employees.");
-                return Page();
-            }
-            catch (NoRowsAffectedException)
-            {
-                _logger.LogError("There are no employees in the database.");
-                return Page();
-            }
             catch (Exception)
             {
-                _logger.LogError("An error occurred while retrieving employees.");
+                ModelState.AddModelError(string.Empty, "An error occurred while retrieving employees.");
                 return Page();
             }
         }

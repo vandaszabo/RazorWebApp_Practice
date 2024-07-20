@@ -2,11 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using MintaProjekt.Exeptions;
-using MintaProjekt.Services;
+using MintaProjekt.Services.Employees;
 using MintaProjekt.Utilities;
-using System.Data.SqlClient;
-using System.Security.Claims;
 
 namespace MintaProjekt.Pages
 {

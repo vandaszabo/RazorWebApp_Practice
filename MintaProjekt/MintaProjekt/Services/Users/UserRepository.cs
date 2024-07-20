@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace MintaProjekt.Data
+namespace MintaProjekt.Services.Users
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<UserRepository> _logger;
@@ -25,6 +25,12 @@ namespace MintaProjekt.Data
         public async Task<IdentityUser?> GetUserById(string userId)
         {
             return await _userManager.FindByIdAsync(userId);
+        }
+
+        // Get user roles
+        public async Task<IEnumerable<string>> GetUserRoles(IdentityUser user)
+        {
+            return await _userManager.GetRolesAsync(user);
         }
 
         // Update user properties

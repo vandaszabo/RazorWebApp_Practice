@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MintaProjekt.Models;
-using MintaProjekt.Services;
+using MintaProjekt.Services.Employees;
 using MintaProjekt.Utilities;
 using System.Data.SqlClient;
 using System.Security.Claims;

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Models;
-using MintaProjekt.Services;
+using MintaProjekt.Services.Departments;
 
 namespace MintaProjekt.Pages
 {

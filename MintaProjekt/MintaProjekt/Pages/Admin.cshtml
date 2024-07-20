@@ -1,4 +1,68 @@
 ﻿@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
 @model MintaProjekt.Pages.AdminModel
 @{
+}
+
+<h2>@Localizer["Users"]</h2>
+@if (Model.UsersWithRoles != null && Model.UsersWithRoles.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User Name</th>
+                <th>Email</th>
+                <th>Roles</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var userWithRoles in Model.UsersWithRoles)
+            {
+                <tr>
+                    <td>@userWithRoles.User.UserName</td>
+                    <td>@userWithRoles.User.Email</td>
+                    <td>@string.Join(", ", userWithRoles.Roles)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No users found.</p>
+}
+
+<h2>@Localizer["Roles"]</h2>
+@if (Model.RolesWithClaims != null && Model.RolesWithClaims.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Role</th>
+                <th>Permissions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var roleWithClaims in Model.RolesWithClaims)
+            {
+                <tr>
+                    <td>@roleWithClaims.Role.Name</td>
+                    <td>
+                        <ul>
+                            @foreach (var claim in roleWithClaims.Claims)
+                            {
+                                <li>@claim.Value</li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No roles found.</p>
 }

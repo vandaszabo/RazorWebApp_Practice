@@ -3,14 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using MintaProjekt.DbContext;
-using MintaProjekt.Services;
 using Serilog;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using MintaProjekt.Authorization;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using MintaProjekt.Utilities;
 using Microsoft.AspNetCore.Mvc.Razor;
+using MintaProjekt.Services.Departments;
+using MintaProjekt.Services.Employees;
+using MintaProjekt.Services.Roles;
+using MintaProjekt.Services.Users;
+using System.Security.Claims;
 
 namespace MintaProjekt
 {
@@ -65,7 +68,7 @@ namespace MintaProjekt
             var app = builder.Build();
 
             // Initialize Roles
-            RoleInitializer.AddRoles(app);
+            InitRoles(app);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -141,6 +144,13 @@ namespace MintaProjekt
         {
             builder.Services.AddScoped<IEmployeeDataService, EmployeeDataService>();
             builder.Services.AddScoped<IDepartmentDataService, DepartmentDataService>();
+
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IRoleService, RoleService>();
+
             builder.Services.AddScoped<UserHelper>();
         }
 
@@ -176,6 +186,49 @@ namespace MintaProjekt
            .AddRoles<IdentityRole>()
            .AddEntityFrameworkStores<UserDbContext>();
 
+        }
+
+        // Initialize 3 Roles: Admin, User, Manager
+        public static void InitRoles(WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+            var roleService = scope.ServiceProvider.GetRequiredService<IRoleService>();
+
+            try
+            {
+                // Admin
+                var adminRole = roleService.CreateRole("Admin").Result;
+                List<Claim> adminClaims = new()
+                {
+                new Claim("Permission", "Select"),
+                new Claim("Permission", "Insert"),
+                new Claim("Permission", "Update"),
+                new Claim("Permission", "Delete")
+                };
+                roleService.AddClaimsToRole(adminRole, adminClaims).Wait();
+
+                // User
+                var userRole = roleService.CreateRole("User").Result;
+                List<Claim> userClaims = new()
+                {
+                new Claim("Permission", "Select")
+                };
+                roleService.AddClaimsToRole(userRole, userClaims).Wait();
+
+                // Manager
+                var managerRole = roleService.CreateRole("Manager").Result;
+                List<Claim> managerClaims = new()
+                {
+                new Claim("Permission", "Select"),
+                new Claim("Permission", "Insert"),
+                new Claim("Permission", "Update")
+                };
+                roleService.AddClaimsToRole(managerRole, managerClaims).Wait();
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex, "An error occurred while creating or setting up roles.");
+            }
         }
 
     }

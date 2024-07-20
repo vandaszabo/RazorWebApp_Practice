@@ -1,6 +1,6 @@
 ﻿using MintaProjekt.Models;
 
-namespace MintaProjekt.Services
+namespace MintaProjekt.Services.Departments
 {
     public interface IDepartmentDataService
     {

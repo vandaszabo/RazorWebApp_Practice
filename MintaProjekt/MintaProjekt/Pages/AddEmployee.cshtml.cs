@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MintaProjekt.Models;
-using MintaProjekt.Services;
+using MintaProjekt.Services.Employees;
 using MintaProjekt.Utilities;
 
 namespace MintaProjekt.Pages

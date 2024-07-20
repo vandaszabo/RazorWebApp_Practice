@@ -3,7 +3,7 @@ using MintaProjekt.Exeptions;
 using MintaProjekt.Models;
 using System.Data.SqlClient;
 
-namespace MintaProjekt.Services
+namespace MintaProjekt.Services.Departments
 {
     public class DepartmentDataService : IDepartmentDataService
     {
@@ -47,7 +47,7 @@ namespace MintaProjekt.Services
                 {
                     int departmentID = reader.GetInt32(0); // department_id
                     DepartmentName departmentName = Enum.Parse<DepartmentName>(reader.GetString(1)); // department_name
-                    int? employeeID = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2); // employee_id
+                    int? employeeID = reader.IsDBNull(2) ? null : reader.GetInt32(2); // employee_id
                     string? firstName = reader.IsDBNull(3) ? null : reader.GetString(3); // first_name
                     string? lastName = reader.IsDBNull(4) ? null : reader.GetString(4); // last_name
                     string? jobTitle = reader.IsDBNull(5) ? null : reader.GetString(5); // job_title
