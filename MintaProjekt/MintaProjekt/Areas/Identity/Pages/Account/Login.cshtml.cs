@@ -109,21 +109,26 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    // Retrieve userID 
-                    var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
-                    var userId = user.Id;
+                    // Retrieve user from DB
+                    IdentityUser? user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+
+                    // Check for null result
+                    if(user == null)
+                    {
+                        _logger.LogWarning("User not found in database after the login process.");
+                        return LocalRedirect(returnUrl);
+                    }
 
                     // Store user in session
                     HttpContext.Session.SetObjectAsJson("User", user);
-
-                    _logger.LogInformation("User logged in. {UserID}: ", userId);
+                    _logger.LogInformation("User logged in. {UserID}: ", user.Id);
                     return LocalRedirect(returnUrl);
                 }
 
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = false });
-                }
+                //if (result.RequiresTwoFactor)
+                //{
+                //    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = false });
+                //}
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using MintaProjekt.Utilities;
 
 namespace MintaProjekt.Areas.Identity.Pages.Account
 {
@@ -26,7 +27,15 @@ namespace MintaProjekt.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
             await _signInManager.SignOutAsync();
+
+            // Remove session
+            var user = HttpContext.Session.GetObjectFromJson<IdentityUser>("User");
+            if (user != null)
+            {
+                HttpContext.Session.Remove("User");
+            }
             _logger.LogInformation("User logged out.");
+
             if (returnUrl != null)
             {
                 return LocalRedirect(returnUrl);
