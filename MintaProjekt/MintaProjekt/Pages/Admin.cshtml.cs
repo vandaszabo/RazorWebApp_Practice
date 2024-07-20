@@ -75,7 +75,11 @@ namespace MintaProjekt.Pages
             }
             try
             {
+                // Update role
                 await _userService.ChangeUserRole(SelectedUserID, SelectedRole);
+
+                // Logout user
+                await _userService.LogoutUser(SelectedUserID);
                 return await OnGetAsync();
             }
             catch (Exception)

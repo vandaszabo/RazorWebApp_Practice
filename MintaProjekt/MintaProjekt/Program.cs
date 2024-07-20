@@ -14,6 +14,7 @@ using MintaProjekt.Services.Employees;
 using MintaProjekt.Services.Roles;
 using MintaProjekt.Services.Users;
 using System.Security.Claims;
+using Microsoft.Extensions.Options;
 
 namespace MintaProjekt
 {
@@ -165,8 +166,13 @@ namespace MintaProjekt
         private static void AddAuthentication(WebApplicationBuilder builder)
         {
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
-            options => builder.Configuration.Bind("CookieSettings", options));
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                // Bind options from configuration
+                builder.Configuration.Bind("CookieSettings", options);
+                // Configure the event to validate the security stamp
+                options.Events.OnValidatePrincipal = SecurityStampValidator.ValidatePrincipalAsync;
+            });
         }
 
         // Add Authorization

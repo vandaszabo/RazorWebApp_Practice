@@ -105,7 +105,8 @@ namespace MintaProjekt.Services.Users
                 var user = await GetUserByID(userID);
                 user.SecurityStamp = Guid.NewGuid().ToString(); // Update User's Security Stamp in AspNetUsers table
                 await _userRepository.UpdateUser(user);
-                
+                _logger.LogInformation("Security Stamp changed for user {UserID}: ", userID);
+
             }
             catch (Exception ex)
             {
