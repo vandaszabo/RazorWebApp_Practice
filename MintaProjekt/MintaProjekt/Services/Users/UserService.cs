@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MintaProjekt.Models;
 using MintaProjekt.Services.Roles;
+using System.Data;
+using System.Security.Claims;
 
 namespace MintaProjekt.Services.Users
 {
@@ -31,6 +34,30 @@ namespace MintaProjekt.Services.Users
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exeption occured in UserService GetUsers method.");
+                throw new InvalidDataException(); // TODO custom UI exeption
+            }
+        }
+
+
+        // Get Users with their roles
+        public async Task<IEnumerable<UserWithRoles>> GetUsersWithRoles()
+        {
+            try
+            {
+                var users = await GetUsers();
+                var usersWithRoles = new List<UserWithRoles>();
+
+                foreach (var user in users)
+                {
+                    var userRoles = await GetUserRoles(user);
+                    usersWithRoles.Add(new UserWithRoles(user, userRoles));
+                }
+
+                return usersWithRoles;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exeption occured in UserService GetUsersWithRoles method.");
                 throw new InvalidDataException(); // TODO custom UI exeption
             }
         }
@@ -105,7 +132,7 @@ namespace MintaProjekt.Services.Users
                 var user = await GetUserByID(userID);
                 user.SecurityStamp = Guid.NewGuid().ToString(); // Update User's Security Stamp in AspNetUsers table
                 await _userRepository.UpdateUser(user);
-                _logger.LogInformation("Security Stamp changed for user {UserID}: ", userID);
+                _logger.LogInformation("Security Stamp changed for user {UserID} in UserService Logout method. ", userID);
 
             }
             catch (Exception ex)
@@ -156,6 +183,7 @@ namespace MintaProjekt.Services.Users
 
                 // Add the new role
                 await AddNewRole(user, newRole);
+                _logger.LogInformation("New role {newRole} assigned to the user {userID} in UserService ChangeUserRole method. ", newRole, userId);
 
             }
             catch (Exception ex)
@@ -166,7 +194,7 @@ namespace MintaProjekt.Services.Users
         }
 
         // Remove User Roles
-        private async Task RemoveExistingRoles(IdentityUser user, IEnumerable<string> existingRoles)
+        public async Task RemoveExistingRoles(IdentityUser user, IEnumerable<string> existingRoles)
         {
             _logger.LogInformation("Start RemoveExistingRoles method.");
             var success = await _userRepository.RemoveUserRoles(user, existingRoles);
@@ -178,7 +206,7 @@ namespace MintaProjekt.Services.Users
         }
 
         // Add User Role
-        private async Task AddNewRole(IdentityUser user, string newRole)
+        public async Task AddNewRole(IdentityUser user, string newRole)
         {
             _logger.LogInformation("Start AddNewRole method.");
             var success = await _userRepository.AddUserRole(user, newRole);
@@ -187,7 +215,7 @@ namespace MintaProjekt.Services.Users
                 _logger.LogWarning("Failed to add new role {NewRole} for user with ID {UserId}.", newRole, user.Id);
                 throw new InvalidOperationException("Failed to add new role.");
             }
-            _logger.LogInformation("New role {NewRole} added successfully for user with ID {UserId}.", newRole, user.Id);
+            _logger.LogInformation("New role {NewRole} added successfully for user with ID {UserId} in UserService - AddNewRole method.", newRole, user.Id);
         }
     }
 

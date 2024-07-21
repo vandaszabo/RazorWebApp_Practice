@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using MintaProjekt.Models;
 using System.Security.Claims;
 
 namespace MintaProjekt.Services.Roles
@@ -10,5 +11,6 @@ namespace MintaProjekt.Services.Roles
         Task AddClaimsToRole(IdentityRole role, List<Claim> claims);
         Task<IEnumerable<IdentityRole>> GetAllRoles();
         Task<IEnumerable<Claim>> GetClaimsForRoleAsync(string roleID);
+        Task<IEnumerable<RoleWithClaims>> GetRolesWithClaims();
     }
 }

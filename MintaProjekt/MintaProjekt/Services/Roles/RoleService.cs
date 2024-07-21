@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using MintaProjekt.Models;
 using System.Security.Claims;
 
 namespace MintaProjekt.Services.Roles
@@ -18,10 +19,9 @@ namespace MintaProjekt.Services.Roles
         // Create Role
         public async Task<IdentityRole> CreateRole(string roleName)
         {
-            _logger.LogInformation("Start CreateRole method.");
+            _logger.LogDebug("Start CreateRole method.");
             try
             {
-                _logger.LogInformation("Try to create role {roleName}", roleName);
                 var roleExist = await _roleRepository.RoleExistsAsync(roleName);
 
                 // Create role if not exist
@@ -58,7 +58,7 @@ namespace MintaProjekt.Services.Roles
         // Add List of claims to a role
         public async Task AddClaimsToRole(IdentityRole role, List<Claim> claims)
         {
-            _logger.LogInformation("Start AddClaimsToRole method.");
+            _logger.LogDebug("Start AddClaimsToRole method.");
             try
             {
                 foreach (var claim in claims)
@@ -76,7 +76,7 @@ namespace MintaProjekt.Services.Roles
         // Assign new claim to a role
         public async Task AddClaimIfNotExists(IdentityRole role, Claim claim)
         {
-            _logger.LogInformation("Start AddClaimIfNotExists method.");
+            _logger.LogDebug("Start AddClaimIfNotExists method.");
             var claims = await _roleRepository.GetClaimsAsync(role);
 
             // Add new claim if it doesn't exist
@@ -96,7 +96,7 @@ namespace MintaProjekt.Services.Roles
         // Get claims for specific role
         public async Task<IEnumerable<Claim>> GetClaimsForRoleAsync(string roleID)
         {
-            _logger.LogInformation("Start GetClaimsForRoleAsync method.");
+            _logger.LogDebug("Start GetClaimsForRoleAsync method.");
             try
             {
                 // Get the role object
@@ -123,7 +123,7 @@ namespace MintaProjekt.Services.Roles
         // Get all roles
         public async Task<IEnumerable<IdentityRole>> GetAllRoles()
         {
-            _logger.LogInformation("Start GetAllRoles method.");
+            _logger.LogDebug("Start GetAllRoles method.");
             try
             {
                 var roles= await _roleRepository.GetAllRolesAsync();
@@ -139,6 +139,30 @@ namespace MintaProjekt.Services.Roles
             {
                 _logger.LogError(ex, "Exeption occured in RoleService - GetAllRoles.");
                 throw;
+            }
+        }
+
+        // Get Roles with their claims
+        public async Task<IEnumerable<RoleWithClaims>> GetRolesWithClaims()
+        {
+            _logger.LogDebug("Start GetRolesWithClaims method.");
+            try
+            {
+                var roles = await GetAllRoles();
+
+                var rolesWithClaims = new List<RoleWithClaims>();
+                foreach (var role in roles)
+                {
+                    var claims = await GetClaimsForRoleAsync(role.Id);
+                    rolesWithClaims.Add(new RoleWithClaims(role, claims));
+                }
+
+                return rolesWithClaims;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exeption occured in RoleService GetRolesWithClaims method.");
+                throw new InvalidDataException(); // TODO custom UI exeption
             }
         }
     }

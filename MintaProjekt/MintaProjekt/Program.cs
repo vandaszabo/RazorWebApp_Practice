@@ -152,6 +152,8 @@ namespace MintaProjekt
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
 
+            builder.Services.AddScoped<IUserTransactions, UserTransactions>();
+
             builder.Services.AddScoped<UserHelper>();
         }
 

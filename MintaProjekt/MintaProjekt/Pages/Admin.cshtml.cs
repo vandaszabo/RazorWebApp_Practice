@@ -13,6 +13,7 @@ namespace MintaProjekt.Pages
     {
         private readonly IUserService _userService;
         private readonly IRoleService _roleService;
+        private readonly IUserTransactions _userTransactions;
         public IEnumerable<RoleWithClaims> RolesWithClaims { get; private set; }
         public IEnumerable<UserWithRoles> UsersWithRoles { get; private set; }
 
@@ -21,12 +22,13 @@ namespace MintaProjekt.Pages
         [BindProperty]
         public string? SelectedRole { get; set; }
 
-        public AdminModel(IUserService userService, IRoleService roleService)
+        public AdminModel(IUserService userService, IRoleService roleService, IUserTransactions userTransactions)
         {
             _userService = userService;
             _roleService = roleService;
             RolesWithClaims = new List<RoleWithClaims>();
             UsersWithRoles = new List<UserWithRoles>();
+            _userTransactions = userTransactions;
         }
 
         // Get all Users and Roles
@@ -35,33 +37,15 @@ namespace MintaProjekt.Pages
             try
             {
                 // Users with their assigned roles
-                var users = await _userService.GetUsers();
-                var usersWithRoles = new List<UserWithRoles>();
-
-                foreach (var user in users)
-                {
-                    var userRoles = await _userService.GetUserRoles(user);
-                    usersWithRoles.Add(new UserWithRoles(user, userRoles));
-                }
-
-                UsersWithRoles = usersWithRoles;
+                UsersWithRoles = await _userService.GetUsersWithRoles();
 
                 // Roles with claims
-                var roles = await _roleService.GetAllRoles();
-
-                var rolesWithClaims = new List<RoleWithClaims>();
-                foreach (var role in roles)
-                {
-                    var claims = await _roleService.GetClaimsForRoleAsync(role.Id);
-                    rolesWithClaims.Add(new RoleWithClaims(role, claims));
-                }
-
-                RolesWithClaims = rolesWithClaims;
+                RolesWithClaims = await _roleService.GetRolesWithClaims();
                 return Page();
             }
             catch (Exception)
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while retrieving users.");
+                ModelState.AddModelError(string.Empty, "An error occurred while retrieving users and roles.");
                 return Page();
             }
         }
@@ -75,17 +59,14 @@ namespace MintaProjekt.Pages
             }
             try
             {
-                // Update role
-                await _userService.ChangeUserRole(SelectedUserID, SelectedRole);
-
-                // Logout user
-                await _userService.LogoutUser(SelectedUserID);
+                // Update user role
+                await _userTransactions.ExecuteUserRoleChangeAndLogoutAsync(SelectedUserID, SelectedRole);
                 return await OnGetAsync();
             }
             catch (Exception)
             {
                 ModelState.AddModelError(string.Empty, "An error occurred while updating user role.");
-                return RedirectToPage("/Error");
+                return Page();
             }
         }
 
