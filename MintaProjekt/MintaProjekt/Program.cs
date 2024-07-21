@@ -131,7 +131,7 @@ namespace MintaProjekt
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30); // Munkamenet idõkorlát (idle = tétlen)
                 options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
+                options.Cookie.IsEssential = true; // the cookie is essential for the application’s basic functionality
             });
         }
         // Add Serilog
