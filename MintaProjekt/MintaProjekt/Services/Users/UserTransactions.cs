@@ -17,7 +17,7 @@ namespace MintaProjekt.Services.Users
         public async Task ExecuteUserRoleChangeAndLogoutAsync(string userId, string role)
         {
             // Create transaction Scope
-            // TransactionScopeAsyncFlowOption.Enabled <= allow asynchronous operations within the transaction.
+                // TransactionScopeAsyncFlowOption.Enabled <= allow asynchronous operations within the transaction.
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
@@ -28,9 +28,9 @@ namespace MintaProjekt.Services.Users
                 await _userService.LogoutUser(userId);
 
                 // Complete transaction
-                // This call informs the transaction manager that it can commit the transaction.
-                // If an exception occurs or scope.Complete() is not called, the transaction manager rolls back the transaction,
-                // discarding all changes made within the scope.
+                    // This call informs the transaction manager that it can commit the transaction.
+                    // If an exception occurs or scope.Complete() is not called, the transaction manager rolls back the transaction,
+                    // discarding all changes made within the scope.
                 scope.Complete();
             }
             catch (Exception ex)

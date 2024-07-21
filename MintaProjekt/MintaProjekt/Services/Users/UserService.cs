@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using MintaProjekt.Models;
 using MintaProjekt.Services.Roles;
-using System.Data;
-using System.Security.Claims;
 
 namespace MintaProjekt.Services.Users
 {
