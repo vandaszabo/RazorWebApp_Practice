@@ -50,7 +50,8 @@ namespace MintaProjekt.Models
         public override string ToString()
         {
             return $"Employee ID: {EmployeeID}\n" +
-                   $"Name: {FirstName} {LastName}\n" +
+                   $"First Name: {FirstName}\n" +
+                   $"Last Name: {LastName}\n" +
                    $"Email: {Email}\n" +
                    $"Phone Number: {PhoneNumber}\n" +
                    $"Hire Date: {HireDate:yyyy-MM-dd}\n" +

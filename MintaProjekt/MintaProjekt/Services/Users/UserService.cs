@@ -38,7 +38,7 @@ namespace MintaProjekt.Services.Users
 
 
         // Get Users with their roles
-        public async Task<IEnumerable<UserWithRoles>> GetUsersWithRoles()
+        public async Task<IEnumerable<UserWithRoles>> GetUsersWithRoles() // TODO Refactor with join(Include) query
         {
             try
             {

@@ -32,6 +32,7 @@
                                 <option value="" disabled selected>Select new Role</option>
                             </select>
                             <button type="submit">Change role</button>
+                            <span asp-validation-for="SelectedRole" class="text-danger"></span>
                         </form>
                     </td>
                 </tr>
@@ -88,7 +89,6 @@ else
 
         function updateUserRole(userId) {
             var selectedRole = document.getElementById('role-dropdown-' + userId).value;
-            // Make an AJAX call to update the user's role or submit a form
             alert('Selected role for user ' + userId + ': ' + selectedRole);
         }
     </script>

@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using MintaProjekt.Models;
 using MintaProjekt.Services.Employees;
 using MintaProjekt.Utilities;
-using System.Data.SqlClient;
-using System.Security.Claims;
 
 namespace MintaProjekt.Pages
 {
@@ -77,11 +75,11 @@ namespace MintaProjekt.Pages
 
 
         // Update Employee information
-        public async Task<IActionResult> OnPostUpdateAsync()
+        public async Task<IActionResult> OnPostUpdateAsync()  // TODO Debug: Local Phone number digits are not set
         {
             if (SelectedEmployee == null || SelectedEmployee.EmployeeID <= 0)
             {
-                _logger.LogWarning($"SelectedEmployee object is not correctly set in UpdateEmployeeModel.");
+                _logger.LogWarning($"SelectedEmployee object is not correctly set in UpdateEmployeeModel. {SelectedEmployee}", SelectedEmployee.ToString());
                 ModelState.AddModelError(string.Empty, "Employee selection failed.");
                 return Page();
             }
