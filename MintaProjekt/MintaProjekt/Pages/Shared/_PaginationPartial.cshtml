@@ -1,0 +1,37 @@
+﻿@using MintaProjekt.Models
+@model Pager
+
+<div class="container">
+    @if (Model.TotalPages > 0)
+    {
+        <ul class="pagination justify-content-center">
+
+            @if (Model.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?PageNumber=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?PageNumber=@(Model.CurrentPage - 1)">Previous</a>
+                </li>
+            }
+
+            @for (int i = Model.StartPage; i <= Model.EndPage; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="?PageNumber=@i">@i</a>
+                </li>
+            }
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?PageNumber=@(Model.CurrentPage +1)">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?PageNumber=@(Model.TotalPages)">Last</a>
+                </li>
+            }
+        </ul>
+    }
+</div>

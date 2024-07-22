@@ -9,40 +9,7 @@
 
 @if (Model.EmployeePager != null)
 {
-    <div class="container">
-        @if (Model.EmployeePager.TotalPages > 0)
-        {
-            <ul class="pagination justify-content-center">
-
-                @if (Model.EmployeePager.CurrentPage > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="?PageNumber=1">First</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?PageNumber=@(Model.EmployeePager.CurrentPage - 1)">Previous</a>
-                    </li>
-                }
-
-                @for (int i = Model.EmployeePager.StartPage; i <= Model.EmployeePager.EndPage; i++)
-                {
-                    <li class="page-item @(i == Model.EmployeePager.CurrentPage ? "active" : "")">
-                        <a class="page-link" href="?PageNumber=@i">@i</a>
-                    </li>
-                }
-
-                @if (Model.EmployeePager.CurrentPage < Model.EmployeePager.TotalPages)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="?PageNumber=@(Model.EmployeePager.CurrentPage +1)">Next</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?PageNumber=@(Model.EmployeePager.TotalPages)">Last</a>
-                    </li>
-                }
-            </ul>
-        }
-    </div>
+    <partial name="_PaginationPartial" model="Model.EmployeePager" />
 }
 
 <table class="table">
@@ -77,3 +44,8 @@
         }
     </tbody>
 </table>
+
+@if (Model.EmployeePager != null)
+{
+    <partial name="_PaginationPartial" model="Model.EmployeePager" />
+}
