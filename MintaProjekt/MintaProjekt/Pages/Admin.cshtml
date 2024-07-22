@@ -6,7 +6,10 @@
 @{
 }
 
-<h2>@Localizer["Users"]</h2>
+<div class="d-flex align-items-center">
+    <h2 class="me-3">@Localizer["Users"]</h2>
+    <a class="nav-link btn btn-primary text-white" id="register" asp-area="Identity" asp-page="/Account/Register">Register New User</a>
+</div>
 @if (Model.UsersWithRoles != null && Model.UsersWithRoles.Any())
 {
     <table class="table">
@@ -31,7 +34,7 @@
                             <select name="SelectedRole" asp-items="@(new SelectList(Model.RolesWithClaims, "Role.Name", "Role.Name"))">
                                 <option value="" disabled selected>Select new Role</option>
                             </select>
-                            <button type="submit">Change role</button>
+                            <button class="btn btn-primary text-white" type="submit">Change role</button>
                             <span asp-validation-for="SelectedRole" class="text-danger"></span>
                         </form>
                     </td>

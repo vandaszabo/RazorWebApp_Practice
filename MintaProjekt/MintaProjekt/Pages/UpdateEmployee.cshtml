@@ -11,7 +11,7 @@
     <select id="EmployeeID" asp-for="EmployeeID" asp-items="Model.EmployeeList">
         <option value="">-- Select Employee --</option>
     </select>
-    <button type="submit">Select</button>
+    <button type="submit" class="btn btn-primary text-white">Select</button>
     
 </form>
 <a asp-page="/UpdateEmployee">Cancel</a>
@@ -72,7 +72,7 @@
         </tr>
         <tr>
             <td></td>
-            <td><button type="submit">Update Employee</button></td>
+                <td><button type="submit" class="btn btn-primary text-white">Update Employee</button></td>
         </tr>
     </table>
 </form>    

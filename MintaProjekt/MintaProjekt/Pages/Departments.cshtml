@@ -39,7 +39,7 @@
                                 <select asp-for="NewLeaderID" asp-items="@(new SelectList(department.Employees, "EmployeeID", "FullName"))">
                                     <option value="" disabled selected>Select an option</option>
                                 </select>
-                                <button type="submit">Add Leader</button>
+                                <button type="submit" class="btn btn-primary">Add Leader</button>
                                 <span asp-validation-for="NewLeaderID" class="text-danger"></span>
                             </form>
                         </td>
