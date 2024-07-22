@@ -19,22 +19,12 @@ namespace MintaProjekt.Services.Employees
 
 
         // Get Employees for specific page
-        public async Task<IEnumerable<Employee>> GetEmployeesForPage(int pageNumber = 1, int pageSize = 10)
+        public async Task<IEnumerable<Employee>> GetEmployeesForPage(int recordSkip, int pageSize = 10)
         {
-            // Validate pageNumber
-            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            _logger.LogInformation("Starting GetEmployeesForPage.");
 
             try
             {
-                // Number of all employees
-                int totalRecords = await GetEmployeesCount();
-
-                // Create a pager
-                var pager = new Pager(totalRecords, pageNumber, pageSize);
-
-                // Offset number
-                int recordSkip = (pageNumber - 1) * pageSize;
-
                 // Create SQL Connection
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
@@ -44,7 +34,7 @@ namespace MintaProjekt.Services.Employees
                 {
                     CommandType = CommandType.StoredProcedure
                 };
-                command.Parameters.Add(new SqlParameter("@Limit", pager.PageSize));
+                command.Parameters.Add(new SqlParameter("@Limit", pageSize));
                 command.Parameters.Add(new SqlParameter("@Offset", recordSkip));
 
 
@@ -86,11 +76,10 @@ namespace MintaProjekt.Services.Employees
         // Get the number of Employees
         public async Task<int> GetEmployeesCount()
         {
+            _logger.LogInformation("Starting GetEmployeesCount.");
+
             try
             {
-                // Initialize totalRecords to zero
-                int totalRecords = 0;
-
                 // Create SQL Connection
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
@@ -106,7 +95,7 @@ namespace MintaProjekt.Services.Employees
                 var result = await command.ExecuteScalarAsync();
 
                 // Convert the result to an integer
-                totalRecords = result != null ? Convert.ToInt32(result) : 0;
+                int totalRecords = result != null ? Convert.ToInt32(result) : 0;
 
                 // Check for no records found
                 if (totalRecords == 0)

@@ -8,7 +8,7 @@ namespace MintaProjekt.Pages
 {
     public class DepartmentsModel : PageModel
     {
-        private readonly IDepartmentDataService _dataAccess;
+        private readonly IDepartmentDataService _dataService;
         private readonly ILogger<DepartmentDataService> _logger;
         public IEnumerable<Department>? Departments { get; private set; }
 
@@ -25,7 +25,7 @@ namespace MintaProjekt.Pages
         public DepartmentsModel(ILogger<DepartmentDataService> logger, IDepartmentDataService dataService)
         {
             _logger = logger;
-            _dataAccess = dataService;
+            _dataService = dataService;
         }
 
         // Get all Departments from DB
@@ -33,7 +33,7 @@ namespace MintaProjekt.Pages
         {
             try
             {
-                Departments = await _dataAccess.GetDepartmentsWithEmployeesAsync();
+                Departments = await _dataService.GetDepartmentsWithEmployeesAsync();
                 return Page();
             }
             catch (Exception ex)
@@ -53,13 +53,13 @@ namespace MintaProjekt.Pages
                 {
                     _logger.LogDebug("New Leader: {ID}", NewLeaderID);
                     _logger.LogInformation("Try to add new leader.");
-                    await _dataAccess.AddDepartmentLeaderAsync(DepartmentID, NewLeaderID);
+                    await _dataService.AddDepartmentLeaderAsync(DepartmentID, NewLeaderID);
                 }
                 else if (LeaderIDToDelete != 0)
                 {
                     _logger.LogDebug("Leader to delete: {ID}", LeaderIDToDelete);
                     _logger.LogInformation("Try to delete existing leader.");
-                    await _dataAccess.DeleteDepartmentLeaderAsync(DepartmentID, LeaderIDToDelete);
+                    await _dataService.DeleteDepartmentLeaderAsync(DepartmentID, LeaderIDToDelete);
                 }
 
                 return await OnGetAsync();

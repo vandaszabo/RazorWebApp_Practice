@@ -10,21 +10,40 @@ namespace MintaProjekt.Pages
     public class EmployeesModel : PageModel
     {
         private readonly ILogger<EmployeesModel> _logger;
-        private readonly IEmployeeDataService _dataAccess;
+        private readonly IEmployeeDataService _dataService;
         public IEnumerable<Employee>? Employees { get; private set; }
+
+        [BindProperty]
+        public int PageNumber { get; set; }  // Current page
+
+        [BindProperty] // For optional set
+        public int PageSize { get; set; } = 10;
+
+        [BindProperty]
+        public Pager? EmployeePager { get; private set; }
 
         public EmployeesModel(ILogger<EmployeesModel> logger, IEmployeeDataService dataService)
         {
             _logger = logger;
-            _dataAccess = dataService;
+            _dataService = dataService;
         }
 
-        // Get all Employees from DB
+        // Get employees for current page
         public async Task<IActionResult> OnGetAsync()
         {
             try
             {
-                Employees = await _dataAccess.GetEmployeesAsync();
+                // Number of all employees
+                int totalRecords = await _dataService.GetEmployeesCount();
+
+                // Create a pager
+                EmployeePager = new Pager(totalRecords, PageNumber, PageSize);
+
+                // Offset number
+                int recordSkip = (PageNumber - 1) * PageSize;
+
+                // Get employees
+                Employees = await _dataService.GetEmployeesForPage(recordSkip, PageSize);
                 return Page();
             }
             catch (Exception)
