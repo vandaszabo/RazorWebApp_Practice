@@ -31,19 +31,33 @@ namespace MintaProjekt.Pages
         // Get employees for current page
         public async Task<IActionResult> OnGetAsync()
         {
+            // Validate input parameters
+            if (PageNumber < 1 || PageSize < 1)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid page number or page size.");
+                return Page();
+            }
+
             try
             {
                 // Number of all employees
                 int totalRecords = await _dataService.GetEmployeesCount();
 
+                if(totalRecords <= 0)
+                {
+                    ModelState.AddModelError(string.Empty, "No employees found.");
+                    return Page();
+                }
+
                 // Create a pager
                 EmployeePager = new Pager(totalRecords, PageNumber, PageSize);
 
-                // Offset number
+                // Calculate Offset number
                 int recordSkip = (PageNumber - 1) * PageSize;
 
                 // Get employees
                 Employees = await _dataService.GetEmployeesForPage(recordSkip, PageSize);
+
                 return Page();
             }
             catch (Exception)

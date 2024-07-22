@@ -39,7 +39,7 @@ namespace MintaProjekt.Services.Employees
 
 
                 // Execute
-                _logger.LogInformation("Executing sp_get_employees_paginated stored procedure.");
+                _logger.LogDebug("Executing sp_get_employees_paginated stored procedure.");
                 using var reader = await command.ExecuteReaderAsync();
 
                 var employees = new List<Employee>();
@@ -91,7 +91,7 @@ namespace MintaProjekt.Services.Employees
                 };
 
                 // Execute
-                _logger.LogInformation("Executing sp_get_employees_count stored procedure.");
+                _logger.LogDebug("Executing sp_get_employees_count stored procedure.");
                 var result = await command.ExecuteScalarAsync();
 
                 // Convert the result to an integer
