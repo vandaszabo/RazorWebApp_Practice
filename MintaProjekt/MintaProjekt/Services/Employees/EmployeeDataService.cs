@@ -1,10 +1,8 @@
 ﻿using System.Data;
 using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using MintaProjekt.Models;
 using MintaProjekt.Exeptions;
 using MintaProjekt.Enums;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MintaProjekt.Services.Employees
 {
@@ -17,6 +15,112 @@ namespace MintaProjekt.Services.Employees
         {
             _logger = logger;
             _connectionString = configuration.GetConnectionString("MSSQLConnection");
+        }
+
+
+        // Get Employees for specific page
+        public async Task<IEnumerable<Employee>> GetEmployeesForPage(int pageNumber = 1, int pageSize = 10)
+        {
+            // Validate pageNumber
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+
+            try
+            {
+                // Number of all employees
+                int totalRecords = await GetEmployeesCount();
+
+                // Create a pager
+                var pager = new Pager(totalRecords, pageNumber, pageSize);
+
+                // Offset number
+                int recordSkip = (pageNumber - 1) * pageSize;
+
+                // Create SQL Connection
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                // Create SQL Command for stored procedure
+                var command = new SqlCommand("sp_get_employees_paginated", connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                command.Parameters.Add(new SqlParameter("@Limit", pager.PageSize));
+                command.Parameters.Add(new SqlParameter("@Offset", recordSkip));
+
+
+                // Execute
+                _logger.LogInformation("Executing sp_get_employees_paginated stored procedure.");
+                using var reader = await command.ExecuteReaderAsync();
+
+                var employees = new List<Employee>();
+                while (await reader.ReadAsync())
+                {
+                    employees.Add(new Employee(
+                        reader.GetInt32(0),  // EmployeeID
+                        reader.GetString(1), // FirstName
+                        reader.GetString(2), // LastName
+                        reader.GetString(3), // Email
+                        PhoneNumber.Parse(reader.GetString(4)), // PhoneNumber
+                        DateOnly.FromDateTime(reader.GetDateTime(5)), // HireDate
+                        reader.GetString(6), // JobTitle
+                        Enum.Parse<DepartmentName>(reader.GetString(7)) // DepartmentName
+                    ));
+                }
+
+                if (employees.Count == 0)
+                {
+                    _logger.LogWarning("No employees found.");
+                    throw new NoRowsAffectedException("No employees found in the database.");
+                }
+
+                return employees;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred in EmployeeDataService - GetEmployeesForPage method.");
+                throw;
+            }
+        }
+
+
+        // Get the number of Employees
+        public async Task<int> GetEmployeesCount()
+        {
+            try
+            {
+                // Initialize totalRecords to zero
+                int totalRecords = 0;
+
+                // Create SQL Connection
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                // Create SQL Command
+                var command = new SqlCommand("sp_get_employees_count", connection) // TODO Use this command for SP-s
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                // Execute
+                _logger.LogInformation("Executing sp_get_employees_count stored procedure.");
+                var result = await command.ExecuteScalarAsync();
+
+                // Convert the result to an integer
+                totalRecords = result != null ? Convert.ToInt32(result) : 0;
+
+                // Check for no records found
+                if (totalRecords == 0)
+                {
+                    _logger.LogWarning("No employees found.");
+                }
+
+                return totalRecords;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred in EmployeeDataService - GetEmployeesCount method.");
+                throw;
+            }
         }
 
 
