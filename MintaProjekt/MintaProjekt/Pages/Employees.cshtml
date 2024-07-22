@@ -5,11 +5,25 @@
 @{
 }
 
+<h1>@Localizer["Employees"]</h1>
+
 @if(Model.EmployeePager != null)
 {
-    
+    <div class="container">
+        @if (Model.EmployeePager.TotalPages > 0)
+        {
+            <ul class="pagination justify-content-center">
+                @for (int i = Model.EmployeePager.StartPage; i <= Model.EmployeePager.EndPage; i++)
+                {
+                    <li class="page-item @(i == Model.EmployeePager.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="?PageNumber=@i">@i</a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
 }
-<h1>@Localizer["Employees"]</h1>
+
 <table class="table">
     <thead>
         <tr>

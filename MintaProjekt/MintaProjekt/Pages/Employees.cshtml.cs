@@ -13,8 +13,8 @@ namespace MintaProjekt.Pages
         private readonly IEmployeeDataService _dataService;
         public IEnumerable<Employee>? Employees { get; private set; }
 
-        [BindProperty]
-        public int PageNumber { get; set; }  // Current page
+        [BindProperty(SupportsGet = true)] // Allows it to be set via query string
+        public int PageNumber { get; set; } = 1; // Current page
 
         [BindProperty] // For optional set
         public int PageSize { get; set; } = 10;
